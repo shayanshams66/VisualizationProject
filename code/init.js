@@ -1,5 +1,5 @@
 var gl; //gl context handle object 
-
+var program; //shader program 
 
 function init() {
 	var canvas = document.getElementById("glcanvas")
@@ -36,10 +36,14 @@ function init() {
 		return;
 	}
 	
-	gl.enable( gl.DEPTH_TEST );
-	gl.depthFunc( gl.LEQUAL );
-	gl.clearColor( 0, 0, 0, 1 );
-	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+	var v_shader = createShader( gl, gl.VERTEX_SHADER, v_shader_src )
+	var f_shader = createShader( gl, gl.FRAGMENT_SHADER, f_shader_src )
+	var program = createProgram( gl, v_shader, f_shader )
+	
+	gl.enable( gl.DEPTH_TEST )
+	gl.depthFunc( gl.LEQUAL )
+	gl.clearColor( 0, 0, 0, 1 )
+	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
 }
 
 
