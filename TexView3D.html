@@ -1,14 +1,36 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<style>
+			body {
+				border: 0;
+				background-color: white;
+			}
+
+			canvas {
+				width: 640px;
+				height: 480px;
+				display: block;
+			}
+		</style>
+		
 		<script src="code/shaders.js"></script>
 		<script src="code/init.js"></script>
-
 	</head>
 
 	<body onload="init()">
-	  <canvas id="glcanvas" width="640" height="480">
-		Your browser doesn't appear to support the 
-		<code>&lt;canvas&gt;</code> element.
-	  </canvas>
+		<h1>Volumetric Texture Visualizer</h1>
+		<canvas id="glcanvas" width="640" height="480">
+			Your browser doesn't appear to support the 
+			<code>&lt;canvas&gt;</code> element.
+		</canvas>
+	  
+		<h1>Settings</h1>
+		<h2>Projection:</h2>
+		<form>
+			<input type="radio" name="projection" value="ortho" checked />Orthogonal<br/>
+			<input type="radio" name="projection" value="persp" checked />Perspective<br/>
+		</form>
+		
 	</body>
 </html>
