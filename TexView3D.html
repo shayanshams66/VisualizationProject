@@ -14,8 +14,12 @@
 			}
 		</style>
 		
+		<script src="deps/gl-matrix.js"></script>
+		
+		<script src="code/globals.js"></script>
 		<script src="code/shaders.js"></script>
 		<script src="code/init.js"></script>
+		<script src="code/render.js"></script>
 	</head>
 
 	<body onload="init()">
@@ -26,11 +30,16 @@
 		</canvas>
 	  
 		<h1>Settings</h1>
-		<h2>Projection:</h2>
+		<h2>Texture Mode:</h2>
 		<form>
-			<input type="radio" name="projection" value="ortho" checked />Orthogonal<br/>
-			<input type="radio" name="projection" value="persp" checked />Perspective<br/>
+			<input type="radio" name="projection" value="tex_2D" checked />2D Object-aligned Slices<br/>
+			<input type="radio" name="projection" value="tex_3D" checked />3D View-aligned Slices<br/>
 		</form>
-		
+		<h2>View Selection Mode:</h2>
+		<form>
+			<input type="radio" name="projection" value="clip_none" checked />No Clipping<br/>
+			<input type="radio" name="projection" value="clip_plane" checked />Clipping Plane<br/>
+			<input type="radio" name="projection" value="clip_box" checked />Clipping Box<br/>
+		</form>
 	</body>
 </html>

@@ -1,10 +1,11 @@
 
 var v_shader_src = 
 `
-attribute vec4 a_position;
+attribute vec3 a_position;
+mat4 modelview = mat4(1, 0, 0, 0, 0,1,0,0,0,0,1,0,0,0,0,1);
 
 void main() {
-  gl_Position = a_position;
+  gl_Position = modelview * vec4( a_position, 1.0 );
 }`
 
 var f_shader_src = 
