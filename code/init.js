@@ -51,9 +51,11 @@ function init() {
 	var f_shader = createShader( gl, gl.FRAGMENT_SHADER, f_shader_src )
 	var program = createProgram( gl, v_shader, f_shader )
 	
+	var buf = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+	
 	var positionLoc = gl.getAttribLocation(program, "a_position")
-	var positionBuf = gl.createBuffer()
-	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuf)
+	var colorLoc = gl.getAttribLocation(program, "a_color")
 	
 	//position attribute buf parameters
 	var size = 3,
@@ -62,22 +64,36 @@ function init() {
 		stride = 0,
 		offset = 0
 	
-	gl.vertexAttribPointer( positionBuf, size, type, normalize, stride, offset)
+	var vertElems = 8;
+	var vertSize = vertElems * 4;
+	
+	//position attribute 
+	gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
+	gl.vertexAttribPointer( colorLoc, 4, gl.FLOAT, false, vertSize, 16 )
 
+	//color attribute
+	
+	
 	// three 2d points
 	var positions = [
-	  -0.5, -0.5, 0,
-	  0.5, -0.5, 0,
-	  0, 0.5, 0
+	  -0.5, -0.5, 0, 0, 1, 1, 1, 1,
+	  0.5, -0.5, 0, 0, 1, 1, 1, 1,
+	  0, 0.5, 0, 0, 1, 1, 1, 1,
 	];
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+	
+	nVerts = positions.length / vertElems 
+	
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
 		
 	//gl.enable( gl.DEPTH_TEST )
 	//gl.depthFunc( gl.LEQUAL )
 	gl.clearColor( 0, 0, 1, 1 )
 	
 	gl.useProgram(program)
+	gl.enableVertexAttribArray(colorLoc)
 	gl.enableVertexAttribArray(positionLoc)
+	
+	meshVerts = buf 
 	
 	renderScene()
 }
