@@ -15,7 +15,7 @@ var rotX = 0,
 	rotZ = 0;
 
 //to be used later	
-var zoom = 0; 
+var zoom = 1; 
 
 //each element of this array is the value of one clip plane 
 //the order is as follows: X+, X-, Y+, Y-, Z+, Z-

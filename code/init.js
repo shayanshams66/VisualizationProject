@@ -87,7 +87,7 @@ function init() {
 		
 	//gl.enable( gl.DEPTH_TEST )
 	//gl.depthFunc( gl.LEQUAL )
-	gl.clearColor( 0, 0, 1, 1 )
+	gl.clearColor( 0, 0.35, 0, 1 )
 	
 	gl.useProgram(program)
 	gl.enableVertexAttribArray(colorLoc)
