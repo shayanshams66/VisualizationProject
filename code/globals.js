@@ -2,7 +2,9 @@ var gl; //gl context handle object
 var program; //shader program 
 
 var meshVerts; //vertex buffer 
-var nVerts = 0, nIndis = 0;
+var meshIndis; //index buffer
+var vertsPerSlice = 4,
+	nSlices = 0;
 
 //Modifiable globals 
 var texMode = 'tex_2D'; //valid values: 'tex_2D', 'tex_3D'

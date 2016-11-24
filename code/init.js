@@ -14,34 +14,10 @@ function forceCanvasSize(canvas) {
 
 function init() {
 	var canvas = document.getElementById("glcanvas")
-	
-	/*
-	var context = canvas.getContext('2d')
-	var devicePixelRatio = window.devicePixelRatio || 1,
-        backingStoreRatio = context.webkitBackingStorePixelRatio ||
-                            context.mozBackingStorePixelRatio ||
-                            context.msBackingStorePixelRatio ||
-                            context.oBackingStorePixelRatio ||
-                            context.backingStorePixelRatio || 1,
-		ratio = devicePixelRatio / backingStoreRatio;
 
-	var old_w = canvas.width,
-		old_h = canvas.height
-	
-	canvas.width = old_w * ratio 
-	canvas.height = old_h * ratio 
-	canvas.style.width = old_w + 'px'
-	canvas.style.height = old_h + 'px'
-	
-	context.scale(ratio, ratio);
-	*/
-	
 	gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
 	
 	if(!gl) {
-		/*context.font= "16px Arial";
-		context.fillStyle = 'red';
-		context.fillText('Error initializing OpenGL context!', 25, 25)*/
 		alert('Error initializing OpenGL context!')
 		
 		return;
@@ -52,7 +28,10 @@ function init() {
 	var program = createProgram( gl, v_shader, f_shader )
 	
 	var buf = gl.createBuffer()
-	gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+	gl.bindBuffer( gl.ARRAY_BUFFER, buf )
+	
+	var iBuf = gl.createBuffer()
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf )
 	
 	var positionLoc = gl.getAttribLocation(program, "a_position")
 	var colorLoc = gl.getAttribLocation(program, "a_color")
@@ -73,27 +52,32 @@ function init() {
 
 	//color attribute
 	
-	
 	// three 2d points
 	var positions = [
-	  -0.5, -0.5, 0, 0, 1, 1, 1, 1,
-	  0.5, -0.5, 0, 0, 1, 1, 1, 1,
-	  0, 0.5, 0, 0, 1, 1, 1, 1,
+	  -0.5, -0.5, 0, 0, 1, 0, 0, 1,
+	  0.5, -0.5, 0, 0, 1, 1, 0, 1,
+	  0, 0.5, 0, 0, 0, 0, 1, 1,
 	];
+	
+	var indis = [
+		0, 1, 2
+	]
 	
 	nVerts = positions.length / vertElems 
 	
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indis), gl.STATIC_DRAW);
 		
 	//gl.enable( gl.DEPTH_TEST )
 	//gl.depthFunc( gl.LEQUAL )
-	gl.clearColor( 0, 0.35, 0, 1 )
+	gl.clearColor( 0, 0.25, 0, 1 )
 	
 	gl.useProgram(program)
 	gl.enableVertexAttribArray(colorLoc)
 	gl.enableVertexAttribArray(positionLoc)
 	
 	meshVerts = buf 
+	meshIndis = iBuf
 	
 	renderScene()
 }

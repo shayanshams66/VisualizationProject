@@ -1,6 +1,6 @@
 
 //scalar is clamped to be between low and high 
-//returns [r, g, b, a]
+//returns [r, g, b, a], each as byte values in 0..255
 function fnTransfer(scalar, low, high) {
 	//translate scalar so it starts at 0
 	scalar -= low;
@@ -18,5 +18,5 @@ function fnTransfer(scalar, low, high) {
 	
 	//scalar now in [0..1] 
 	
-	return [ 1.0 - scalar, 0, scalar, 1.0 ];
+	return [ Math.floor( (1.0 - scalar) * 255 ), 0, Math.floor(scalar * 255), 255 ];
 }
