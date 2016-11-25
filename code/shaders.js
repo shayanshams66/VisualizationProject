@@ -2,25 +2,30 @@
 var v_shader_src = 
 `
 attribute vec3 a_position;
-attribute vec4 a_color;
-mat4 modelview = mat4(1, 0, 0, 0, 0,1,0,0,0,0,1,0,0,0,0,1);
+attribute vec2 a_uv;
+/*mat4 modelview = mat4(
+	0.01, 0,    0,    0, 
+	0,    0.01, 0,    0, 
+	0,    0,    0.01, 0,
+	0,    0,    0,    1);*/
+uniform mat4 modelview;
 
-varying vec4 int_color;
+varying vec2 i_uv;
 
 void main() {
   gl_Position = modelview * vec4( a_position, 1.0 );
-  int_color = a_color;
+  i_uv = a_uv;
 }`
 
-var f_shader_src = 
+var f_shader2d_src = 
 `
 precision mediump float;
 
-varying vec4 int_color;
+varying vec2 i_uv;
 
  
 void main() {
-  gl_FragColor = int_color; 
+  gl_FragColor = vec4( 1.0, 1.0, 1.0, 0.5); 
 }`
 
 function createShader(gl, type, source) {

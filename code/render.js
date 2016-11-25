@@ -6,11 +6,13 @@ function renderScene() {
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, meshIndis )
 	
 	//gl.drawArrays( gl.TRIANGLES, 0, nVerts ); 
-	gl.drawElements( gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0 )
+	//gl.drawElements( gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0 )
 	
-	/* Draw slices in reverse view order. 
-	for( slice = 0; slice < nSlices; slice++ ) {
-		//Take complement of slice if we're iterating in the other order
+	//Draw slices in reverse view order. 
+	for( slice = 0; slice < 1; slice++ ) {
+		//var sliceElems = (texData.width - 1) * (texData.height - 1);
+		
+		gl.drawElements( gl.TRIANGLES, nIndis, gl.UNSIGNED_SHORT, 0 )
 	}
-	*/
+     
 }

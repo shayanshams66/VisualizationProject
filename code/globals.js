@@ -1,10 +1,19 @@
 var gl; //gl context handle object 
-var program; //shader program 
+var program2d; //shader program 
+var program3d;
+
+//shader attribute and uniform locations 
+var positionLoc,
+	uvLoc,
+	modelviewLoc
 
 var meshVerts; //vertex buffer 
 var meshIndis; //index buffer
 var vertsPerSlice = 4,
-	nSlices = 0;
+	nSlices = 0,
+	nIndis;
+	
+var vBuf, iBuf; 
 
 //Modifiable globals 
 var texMode = 'tex_2D'; //valid values: 'tex_2D', 'tex_3D'

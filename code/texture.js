@@ -19,7 +19,7 @@ function vecScale( v, scale ) {
 //return a vector pointing one notch forward 
 function vecStep( v1, v2, steps ) {
 	var diff = vecDiff( v1, v2 )
-	return vecScale( v, 1.0 / steps )
+	return vecScale( diff, 1.0 / steps )
 }
 
 //sample texture with trilinear filtering
@@ -89,20 +89,22 @@ function sample( texture, x, y, z ) {
 //Sets the "id2d" parameter of the texture object to an array of texture ids
 //	- one for each slice. 
 //Writes to vBuf and iBuf 
-function genMesh2D( texture, slices, vBuf, iBuf ) {
+function genMesh2d( texture, slices, vBuf, iBuf ) {
 	var nHorizChunks = vecDist( slices[0][1], slices[0][0] )
 	var nVertChunks = vecDist( slices[0][2], slices[0][0] )
 	
-	var horizStep = vecStep( slices[0][1], slices[0][0] )
-	var vertStep = vecStep( slices[0][2], slices[0][0] )
+	var steps = 80
+	
+	var horizStep = vecStep( slices[0][1], slices[0][0], steps )
+	var vertStep = vecStep( slices[0][2], slices[0][0], steps )
 	
 	//format: x, y, z, 0, u, v, 0, 0 
 	var vertData = []
 	var indis = []
 	
 	//For each slice, generate mesh data with vertices at each sample point
-	for( i = 0; i < slices.length; i++ ) {
-		
+	//for( i = 0; i < slices.length; i++ ) {
+	for( i = 0; i < 1; i++ ) {
 		//texture data in RGBA 8-bit per channel format 
 		var texData = []
 		var point = slices[i][0]
@@ -119,27 +121,65 @@ function genMesh2D( texture, slices, vBuf, iBuf ) {
 				point = vecAdd( point, horizStep )
 			}
 			
+			point = vecAdd( point, vecScale( horizStep, -nHorizChunks ) )
 			point = vecAdd( point, vertStep )
 		}
 		
+		/*
+		for( i = 6300; i < 6400; i++ ) {
+			console.log( vertData[i * 8], vertData[i * 8 + 1], vertData[i * 8 + 2] )
+		}
+		*/
+		
+		var indiStart = 0
+		
 		//generate indices
 		for( row = 0; row < nVertChunks - 1; row++ ) {
-			var indiStart = 0
-			
 			for( col = 0; col < nHorizChunks - 1; col++ ) {
-				indis.push( indiStart, indiStart + 1, indiStart + 2, 
-					indiStart + 1, indiStart + 2, indiStart + 3 )
-				indiStart += 4
+				var indiStart = row * steps + col 
+				indis.push( indiStart, indiStart + 1, indiStart + steps, 
+					indiStart + 1, indiStart + steps, indiStart + steps + 1 )
+				//indiStart += 1
+				
+				//console.log( indiStart, indiStart + 1, indiStart + steps, 
+				//	indiStart + 1, indiStart + steps, indiStart + steps + 1 )
 			}
+			//indiStart += 1
 		}
+		
+		console.log( indiStart )
 	}
+	
+	/*
+	//debug 
+	vertData = [
+		0, 0, 0, 0, 0, 0, 0, 0, 
+		1, 0, 0, 0, 1, 0, 0, 0,
+		1, 1, 0, 0, 1, 1, 0, 0,
+	]
+	indis = [
+		0, 1, 2
+	]
+	*/
+	
+	/*
+	for( k = 0; k < vertData.length; k += 8 ) {
+		console.log( vertData[k], vertData[k+1], vertData[k+2], vertData[k+3], vertData[k+4], vertData[k+5], vertData[k+6], vertData[k+7] )
+	}
+	
+	for( k = 0; k < indis.length; k += 6 ) {
+		console.log( indis[k], indis[k+1], indis[k+2], indis[k+3], indis[k+4], indis[k+5] )
+	}
+	*/
 	
 	gl.bindBuffer( gl.ARRAY_BUFFER, vBuf )
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf )
 	
-	gl.bufferData( gl.ARRAY_BUFFER, new Uint8Array(vertData), gl.STATIC_DRAW )
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(vertData), gl.STATIC_DRAW )
 	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, 
 		new Uint16Array(indis), gl.STATIC_DRAW )
+		
+	return indis.length
 }
 
 

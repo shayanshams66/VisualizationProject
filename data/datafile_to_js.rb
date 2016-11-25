@@ -11,7 +11,7 @@ puts 'var texData = {'
 
 dims = gets.split( ' ' )
 
-layers = dims[0].to_i
+depth = dims[0].to_i
 rows = dims[1].to_i
 cols = dims[2].to_i 
 
@@ -26,15 +26,15 @@ loop do
 	end 
 end 
 
-puts "\t'layers': #{layers},"
-puts "\t'rows': #{rows},"
-puts "\t'cols': #{cols},"
+puts "\t'depth': #{depth},"
+puts "\t'height': #{rows},"
+puts "\t'width': #{cols},"
 puts "\t'samples': ["
 
 i = 0
 min = 999999999
 max = 0
-layers.times do
+depth.times do
 	puts "\t\t["
 
 	rows.times do
