@@ -8,12 +8,12 @@ attribute vec2 a_uv;
 	0,    0.01, 0,    0, 
 	0,    0,    0.01, 0,
 	0,    0,    0,    1);*/
-uniform mat4 modelview;
+uniform mat4 proj_modelview;
 
 varying vec2 i_uv;
 
 void main() {
-  gl_Position = modelview * vec4( a_position, 1.0 );
+  gl_Position = proj_modelview * vec4( a_position, 1.0 );
   i_uv = a_uv;
 }`
 

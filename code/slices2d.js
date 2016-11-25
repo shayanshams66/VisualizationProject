@@ -77,8 +77,7 @@ function genAxisAlignedSlices2d( texture ) {
 	for( slice = 0; slice < xyPlus2dSlices.length; slice++ ) {
 		var s = xyPlus2dSlices[slice] 
 		console.log( "[ " + s[0] + "; " + s[1] + "; " + s[2] + "; " + s[3] + " ]" )
-	}
-	*/
+	}*/
 }
 
 //globals that store axis aligned slices in drawing order

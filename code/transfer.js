@@ -10,7 +10,7 @@ function fnTransfer(scalar, low, high) {
 		scalar = 0;
 	
 	//normalize scalar to 0 .. infinity range
-	scalar /= high - low;
+	scalar /= (high - low);
 	
 	//clamp scalar high 
 	if( scalar > 1 )
@@ -18,5 +18,5 @@ function fnTransfer(scalar, low, high) {
 	
 	//scalar now in [0..1] 
 	
-	return [ Math.floor( (scalar) * 255 ), 0, Math.floor(1.0 - scalar * 255), Math.floor( scalar * 127 ) + 128 ];
+	return [ Math.floor( (scalar) * 255 ), 0, Math.floor(1.0 - scalar * 255), Math.floor( scalar * 191 ) + 64 ];
 }

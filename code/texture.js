@@ -24,6 +24,7 @@ function vecStep( v1, v2, steps ) {
 
 //sample texture with trilinear filtering
 function sample( texture, x, y, z ) {
+	/*
 	if( x < 0 || x >= texture.width ) {
 		return 0;
 	}
@@ -34,7 +35,15 @@ function sample( texture, x, y, z ) {
 	
 	if( z < 0 || z >= texture.depth ) {
 		return 0;
-	}
+	}*/
+	
+	if ( x < 0 ) { x = 0 } 
+	if ( x >= texture.width ) { x = texture.width - 1 }
+	if ( y < 0 ) { y = 0 } 
+	if ( y >= texture.height ) { y = texture.height - 1 }
+	if ( z < 0 ) { z = 0 } 
+	if ( z >= texture.depth ) { z = texture.depth - 1 }
+	
 	
 	/*
 	var points = [
@@ -55,6 +64,7 @@ function sample( texture, x, y, z ) {
 		yHi = Math.ceil(y),
 		zLo = Math.floor(z),
 		zHi = Math.ceil(z)
+	
 	
 	var samples = [
 		texture.samples[ zLo ][ yLo ][ xLo ],
@@ -98,6 +108,8 @@ function genTex2d( texture ) {
 	
 	gl.bindTexture( gl.TEXTURE_2D, tex );
 	//gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( buf ) )
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
 	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST );
 	
@@ -106,108 +118,76 @@ function genTex2d( texture ) {
 }
 
 
-//Creates a set of 2D textures and the mesh
-//Sets the "id2d" parameter of the texture object to an array of texture ids
-//	- one for each slice. 
-//Writes to vBuf and iBuf 
-function genMesh2d( texture, slices, vBuf, iBuf, tex ) {
-	var nHorizChunks = vecDist( slices[0][1], slices[0][0] )
-	var nVertChunks = vecDist( slices[0][2], slices[0][0] )
+function genMesh2dSlice( texture, slice, vBuf, iBuf, tex ) {
+	var nHorizChunks = vecDist( slice[1], slice[0] )
+	var nVertChunks = vecDist( slice[2], slice[0] )
 	
 	var steps = 80
 	
-	var horizStep = vecStep( slices[0][1], slices[0][0], steps )
-	var vertStep = vecStep( slices[0][2], slices[0][0], steps )
+	var horizStep = vecStep( slice[1], slice[0], steps )
+	var vertStep = vecStep( slice[2], slice[0], steps )
 	
 	//format: x, y, z, 0, u, v, 0, 0 
 	var vertData = []
 	var indis = []
 	
-	//For each slice, generate mesh data with vertices at each sample point
-	//for( i = 0; i < slices.length; i++ ) {
-	for( i = 0; i < 1; i++ ) {
-		//texture data in RGBA 8-bit per channel format 
-		var texData = []
-		var point = slices[i][0]
-		
-		//generate vertices, tex coords, and tex colors 
-		for( row = 0; row < nVertChunks; row++ ) {
-			for( col = 0; col < nHorizChunks; col++ ) {
-				var samp = sample( texture, point[0], point[1], point[2] )
-				var color = fnTransfer( samp, texture.min, texture.max )
-				texData.push( color[0], color[1], color[2], color[3] )
-				vertData.push( point[0], point[1], point[2], 0, 
-					col / TEX_DIM, row / TEX_DIM, 0, 0 )
-					
-				point = vecAdd( point, horizStep )
-			}
-			
-			//pad texData 
-			for( col = nHorizChunks; col < TEX_DIM; col++ ) {
-				texData.push( 0, 0, 0, 0 )
-			}
-			
-			point = vecAdd( point, vecScale( horizStep, -nHorizChunks ) )
-			point = vecAdd( point, vertStep )
+	var texData = []
+	var point = slice[0]
+	
+	for( row = 0; row < nVertChunks; row++ ) {
+		for( col = 0; col < nHorizChunks; col++ ) {
+			var samp = sample( texture, point[0], point[1], point[2] )
+			var color = fnTransfer( samp, texture.min, texture.max )
+			texData.push( color[0], color[1], color[2], color[3] )
+			vertData.push( point[0], point[1], point[2], 0, 
+				col / TEX_DIM, row / TEX_DIM, 0, 0 )
+				
+			point = vecAdd( point, horizStep )
 		}
 		
 		//pad texData 
-		for( row = nVertChunks; row < TEX_DIM; row++ ) {
-			for( col = 0; col < TEX_DIM; col++ ) {
-				texData.push( 0, 0, 0, 0 );
-			}
+		for( col = nHorizChunks; col < TEX_DIM; col++ ) {
+			texData.push( 0, 0, 0, 0 )
 		}
 		
-		gl.bindTexture( gl.TEXTURE_2D, tex );
-		
-		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( texData ) )
-		
-		gl.generateMipmap( gl.TEXTURE_2D );
-		
-		/*
-		for( i = 6300; i < 6400; i++ ) {
-			console.log( vertData[i * 8], vertData[i * 8 + 1], vertData[i * 8 + 2] )
+		point = vecAdd( point, vecScale( horizStep, -nHorizChunks ) )
+		point = vecAdd( point, vertStep )
+	}
+	
+	//pad texData 
+	for( row = nVertChunks; row < TEX_DIM; row++ ) {
+		for( col = 0; col < TEX_DIM; col++ ) {
+			texData.push( 0, 0, 0, 0 );
 		}
-		*/
-		
-		var indiStart = 0
-		
-		//generate indices
-		for( row = 0; row < nVertChunks - 1; row++ ) {
-			for( col = 0; col < nHorizChunks - 1; col++ ) {
-				var indiStart = row * steps + col 
-				indis.push( indiStart, indiStart + 1, indiStart + steps, 
-					indiStart + 1, indiStart + steps, indiStart + steps + 1 )
-				//indiStart += 1
-				
-				//console.log( indiStart, indiStart + 1, indiStart + steps, 
-				//	indiStart + 1, indiStart + steps, indiStart + steps + 1 )
-			}
+	}
+	
+	gl.bindTexture( gl.TEXTURE_2D, tex );
+	
+	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( texData ) )
+	
+	gl.generateMipmap( gl.TEXTURE_2D );
+	
+	/*
+	for( i = 6300; i < 6400; i++ ) {
+		console.log( vertData[i * 8], vertData[i * 8 + 1], vertData[i * 8 + 2] )
+	}
+	*/
+	
+	var indiStart = 0
+	
+	//generate indices
+	for( row = 0; row < nVertChunks - 1; row++ ) {
+		for( col = 0; col < nHorizChunks - 1; col++ ) {
+			var indiStart = row * steps + col 
+			indis.push( indiStart, indiStart + 1, indiStart + steps, 
+				indiStart + 1, indiStart + steps, indiStart + steps + 1 )
 			//indiStart += 1
+			
+			//console.log( indiStart, indiStart + 1, indiStart + steps, 
+			//	indiStart + 1, indiStart + steps, indiStart + steps + 1 )
 		}
+		//indiStart += 1
 	}
-	
-	/*
-	//debug 
-	vertData = [
-		0, 0, 0, 0, 0, 0, 0, 0, 
-		1, 0, 0, 0, 1, 0, 0, 0,
-		1, 1, 0, 0, 1, 1, 0, 0,
-	]
-	indis = [
-		0, 1, 2
-	]
-	*/
-	
-	/*
-	for( k = 0; k < vertData.length; k += 8 ) {
-		console.log( vertData[k], vertData[k+1], vertData[k+2], vertData[k+3], vertData[k+4], vertData[k+5], vertData[k+6], vertData[k+7] )
-	}
-	
-	for( k = 0; k < indis.length; k += 6 ) {
-		console.log( indis[k], indis[k+1], indis[k+2], indis[k+3], indis[k+4], indis[k+5] )
-	}
-	*/
 	
 	gl.bindBuffer( gl.ARRAY_BUFFER, vBuf )
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf )
@@ -218,6 +198,12 @@ function genMesh2d( texture, slices, vBuf, iBuf, tex ) {
 		
 	return indis.length
 }
+
+function genMesh2d( texture, slices, vBuf, iBuf, tex ) {
+	
+}
+
+
 
 
 //TODO

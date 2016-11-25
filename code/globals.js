@@ -5,7 +5,7 @@ var program3d;
 //shader attribute and uniform locations 
 var positionLoc,
 	uvLoc,
-	modelviewLoc
+	projModelviewLoc
 
 var meshVerts; //vertex buffer 
 var meshIndis; //index buffer
@@ -23,10 +23,13 @@ var sliceMeshXyPlus = [],
 	sliceMeshXzPlus = [],
 	sliceMeshXzMinus = []
 
+var N_SLICES = 80
+	
 //Modifiable globals 
 var texMode = 'tex_2D'; //valid values: 'tex_2D', 'tex_3D'
 var clipMode = 'clip_none'; //valid values: 'clip_none', 'clip_plane', 'clip_box'
 var modelview = mat4.create();
+var projection = mat4.create();
 
 //Rotation 
 var rotX = 0,
