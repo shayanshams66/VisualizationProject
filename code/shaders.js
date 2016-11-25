@@ -11,8 +11,10 @@ attribute vec2 a_uv;
 uniform mat4 proj_modelview;
 
 varying vec2 i_uv;
+varying vec3 ut_pos;
 
 void main() {
+  ut_pos = a_position;
   gl_Position = proj_modelview * vec4( a_position, 1.0 );
   i_uv = a_uv;
 }`
@@ -22,10 +24,22 @@ var f_shader2d_src =
 precision mediump float;
 
 varying vec2 i_uv;
+varying vec3 ut_pos;
 uniform sampler2D samp;
 
+uniform vec3 posClip;
+uniform vec3 negClip;
+
+//vec3 posClip = vec3( 81, 81, 81 );
+//vec3 negClip = vec3( -1, -1, -1 );
+ 
  
 void main() {
+	if( ut_pos.x > posClip.x || ut_pos.y > posClip.y || ut_pos.z > posClip.z ||
+		ut_pos.x < negClip.x || ut_pos.y < negClip.y || ut_pos.z < negClip.z ) {
+		discard;
+	}
+	
   //gl_FragColor = vec4( 1.0, 1.0, 1.0, 0.5); 
   gl_FragColor = texture2D( samp, i_uv.xy );
 }`

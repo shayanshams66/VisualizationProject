@@ -3,12 +3,12 @@
 //Populate the global variables xPlane2dSlices, yPlane2dSlices, and zPlane2dSlices
 //Each slice is an array of 4 corner vertices in TL, TR, LL, LR order
 function genAxisAlignedSlices2d( texture ) {
-	xyPlus2dSlices = []
-	yzPlus2dSlices = []
-	xzPlus2dSlices = []
-	xyMinus2dSlices = []
-	yzMinus2dSlices = []
-	xzMinus2dSlices = []
+	xyPlus2dSlices = new Array()
+	yzPlus2dSlices = new Array()
+	xzPlus2dSlices = new Array()
+	xyMinus2dSlices = new Array()
+	yzMinus2dSlices = new Array()
+	xzMinus2dSlices = new Array()
 	
 	/*
 	var xMax = texture.width / 2,
@@ -31,47 +31,51 @@ function genAxisAlignedSlices2d( texture ) {
 	for( zSlice = 0; zSlice < texture.depth; zSlice++ ) {
 		var zPos = zSlice * zStep + zMin
 		
-		slice = [
+		var slc = [
 			[ xMin, yMax, zPos ],
 			[ xMax, yMax, zPos ],
 			[ xMin, yMin, zPos ],
 			[ xMax, yMin, zPos ]
 		]
 		
-		xyPlus2dSlices.push( slice )
+		xyMinus2dSlices.push( slc )
 	}
 	
 	//YZ plane 
 	for( xSlice = 0; xSlice < texture.width; xSlice++ ) {
 		var xPos = xSlice * xStep + xMin 
 		
-		slice = [
+		var slc = [
 			[ xPos, yMax, zMin ],
 			[ xPos, yMax, zMax ],
 			[ xPos, yMin, zMin ],
 			[ xPos, yMin, zMax ]
 		]
 		
-		yzPlus2dSlices.push( slice )
+		yzMinus2dSlices.push( slc )
 	}
 	
 	//XZ plane 
 	for( ySlice = 0; ySlice < texture.height; ySlice++ ) {
 		var yPos = ySlice * yStep + yMin 
 		
-		slice = [
+		var slc = [
 			[ xMin, yPos, zMin ],
 			[ xMax, yPos, zMin ],
 			[ xMin, yPos, zMax ],
 			[ xMax, yPos, zMax ]
 		]
 		
-		xzPlus2dSlices.push( slice )
+		xzMinus2dSlices.push( slc )
 	}
 	
-	xyMinus2dSlices = xyPlus2dSlices.reverse()
-	yzMinus2dSlices = yzPlus2dSlices.reverse()
-	xzMinus2dSlices = xzPlus2dSlices.reverse()
+	xyPlus2dSlices = xyMinus2dSlices.slice(0);
+	yzPlus2dSlices = yzMinus2dSlices.slice(0);
+	xzPlus2dSlices = xzMinus2dSlices.slice(0)
+	
+	xyPlus2dSlices.reverse();
+	yzPlus2dSlices.reverse();
+	xzPlus2dSlices.reverse();
 	
 	/*
 	for( slice = 0; slice < xyPlus2dSlices.length; slice++ ) {
@@ -80,10 +84,4 @@ function genAxisAlignedSlices2d( texture ) {
 	}*/
 }
 
-//globals that store axis aligned slices in drawing order
-var xyPlus2dSlices = []
-var yzPlus2dSlices = []
-var xzPlus2dSlices = []
-var xyMinus2dSlices = []
-var yzMinus2dSlices = []
-var xzMinus2dSlices = []
+

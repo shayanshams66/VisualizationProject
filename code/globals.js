@@ -16,13 +16,23 @@ var vertsPerSlice = 4,
 var vBuf, iBuf, tex; 
 
 //each slice mesh is an array of [ vBuf, iBuf, tex ]
-var sliceMeshXyPlus = [],
-	sliceMeshXyMinus = [],
-	sliceMeshYzPlus = [],
-	sliceMeshYzMinus = [],
-	sliceMeshXzPlus = [],
-	sliceMeshXzMinus = []
+var sliceMeshXyPlus = new Array(),
+	sliceMeshXyMinus = new Array(),
+	sliceMeshYzPlus = new Array(),
+	sliceMeshYzMinus = new Array(),
+	sliceMeshXzPlus = new Array(),
+	sliceMeshXzMinus = new Array()
 
+//globals that store axis aligned slices in drawing order
+var xyPlus2dSlices = new Array(),
+	yzPlus2dSlices = new Array(),
+	xzPlus2dSlices = new Array(),
+	xyMinus2dSlices = new Array(),
+	yzMinus2dSlices = new Array(),
+	xzMinus2dSlices = new Array()
+
+var currentSliceMesh = new Array()
+	
 var N_SLICES = 80
 	
 //Modifiable globals 
@@ -41,7 +51,8 @@ var zoom = 1;
 
 //each element of this array is the value of one clip plane 
 //the order is as follows: X+, X-, Y+, Y-, Z+, Z-
-var clippingPlanes = [ -1, 81, -1, 81, -1, 81 ]
+var clipPosLoc, clipNegLoc;
+var clippingPlanes = [ 81, -1, 81, -1, 81, -1 ]
 
 var TEX_DIM = 128; 
-var TEX_DIM3D = 2048;
+//var TEX_DIM3D = 2048;

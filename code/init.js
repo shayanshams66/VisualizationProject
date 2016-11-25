@@ -12,6 +12,42 @@ function forceCanvasSize(canvas) {
 	}
 }
 
+var vertElems = 8;
+var vertSize = vertElems * 4;
+
+//return sliceMesh from sliceSet
+function loadSliceMesh( slices ) {
+	var ret = new Array()
+	
+	for( s = 0; s < N_SLICES; s++ ) {
+		var verts = gl.createBuffer()
+		gl.bindBuffer( gl.ARRAY_BUFFER, verts )
+		
+		var indis = gl.createBuffer()
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indis )
+		
+		var tex = genTex2d();
+		
+		gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
+		gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
+		nIndis = genMesh2dSlice( texData, slices[s], verts, indis, tex );
+		
+		ret[s] = [verts, indis, tex];
+		//sliceMesh.push( [ verts, indis, tex ] )
+	}
+	
+	return ret
+}
+
+function freeSliceMesh( sm ) {
+	for( var i = 0; i < sm.length; i++ ) {
+		var m = sm[i]
+		gl.deleteBuffer( m[0] )
+		gl.deleteBuffer( m[1] )
+		gl.deleteTexture( m[2] )
+	}
+}
+
 function init() {
 	var canvas = document.getElementById("glcanvas")
 
@@ -31,14 +67,13 @@ function init() {
 	positionLoc = gl.getAttribLocation( program2d, "a_position" )
 	uvLoc = gl.getAttribLocation( program2d, "a_uv")
 	projModelviewLoc = gl.getUniformLocation( program2d, "proj_modelview" )
+	clipPosLoc = gl.getUniformLocation( program2d, "posClip" )
+	clipNegLoc = gl.getUniformLocation( program2d, "negClip" )
 	
 	gl.enableVertexAttribArray(uvLoc)
 	gl.enableVertexAttribArray(positionLoc)
 	
 	gl.useProgram( program2d )
-	
-	var vertElems = 8;
-	var vertSize = vertElems * 4;
 	
 	genAxisAlignedSlices2d( texData )
 	
@@ -48,6 +83,7 @@ function init() {
 	}*/
 	
 	//create 2D slice mesh data for each orientation
+	/*
 	var sliceMeshes = [
 		sliceMeshXyPlus,
 		sliceMeshXyMinus,
@@ -56,22 +92,23 @@ function init() {
 		//sliceMeshXzPlus,
 		//sliceMeshXzMinus,
 	]
-	
+	*/
 	//logical slices 
+	/*
 	var sliceSets = [
 		xyPlus2dSlices,
 		xyMinus2dSlices,
-		//yzPlus2dSlices,
-		//yzMinus2dSlices,
-		//xzPlus2dSlices,
-		//xzMinus2dSlices,
-	]
-	
+		yzPlus2dSlices,
+		yzMinus2dSlices,
+		xzPlus2dSlices,
+		xzMinus2dSlices,
+	]*/
+	/*
 	//slice mesh = [ v buffer, i buffer, texture ]
 	for( i = 0; i < sliceMeshes.length; i++ ) {
 		var sliceMesh = sliceMeshes[i]
 		var sliceSet = sliceSets[i]
-		
+		/*
 		for( slice = 0; slice < N_SLICES; slice++ ) {
 			var verts = gl.createBuffer()
 			gl.bindBuffer( gl.ARRAY_BUFFER, verts )
@@ -79,27 +116,38 @@ function init() {
 			var indis = gl.createBuffer()
 			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indis )
 			
-			gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
-			gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
-			
 			var tex = genTex2d();
 			
-			sliceMesh.push( [ verts, indis, tex ] )
-			
+			gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
+			gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
 			nIndis = genMesh2dSlice( texData, sliceSet[slice], verts, indis, tex );
+			
+			sliceMesh.push( [ verts, indis, tex ] )
 		}
-	}
+		*/
+		//sliceMeshes[i] = loadSliceMesh( sliceSet )
+		//console.log( sliceMeshes[i] == sliceMeshXyPlus, sliceSets[i] == xyPlus2dSlices )
+	//}*/
 	
-	/*
-	meshVerts = gl.createBuffer()
-	gl.bindBuffer( gl.ARRAY_BUFFER, meshVerts )
+	//DEBUG: I have no idea why slice sets are reversed. It makes no sense and
+	//I'm running out of time to actually fix it. 
+	//sliceMeshXzPlus = loadSliceMesh( xzPlus2dSlices )
+	//sliceMeshXyMinus = loadSliceMesh( xyMinus2dSlices )
+	//sliceMeshXyPlus = loadSliceMesh( xyPlus2dSlices )
 	
-	meshIndis = gl.createBuffer()
-	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, meshIndis )
+	//console.log( xyPlus2dSlices[0][0], xzPlus2dSlices[0][0] )
 	
-	gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
-	gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
-	*/
+	currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
+	
+	//sliceMeshXzMinus = loadSliceMesh( xzMinus2dSlices )
+	//sliceMeshXzPlus = loadSliceMesh( xzPlus2dSlices )
+	
+	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+	
+	//sliceMeshYzPlus = loadSliceMesh( sliceSets[2] )
+	//sliceMeshXyMinus = loadSliceMesh
+
 	gl.enable( gl.BLEND )
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	gl.clearColor( 0, 0, 0, 1 )
@@ -109,6 +157,8 @@ function init() {
 	
 	setInterval( function() {
 		rotY += 0.01
+		//rotZ += 0.009
+		//rotX += 0.005
 		update()
 	}, 30 )
 }
