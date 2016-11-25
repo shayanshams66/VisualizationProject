@@ -117,6 +117,7 @@ function genTex2d( texture ) {
 	return tex;
 }
 
+var w = 0
 
 function genMesh2dSlice( texture, slice, vBuf, iBuf, tex ) {
 	var nHorizChunks = vecDist( slice[1], slice[0] )
@@ -191,7 +192,7 @@ function genMesh2dSlice( texture, slice, vBuf, iBuf, tex ) {
 	
 	gl.bindBuffer( gl.ARRAY_BUFFER, vBuf )
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf )
-	
+
 	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(vertData), gl.STATIC_DRAW )
 	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, 
 		new Uint16Array(indis), gl.STATIC_DRAW )

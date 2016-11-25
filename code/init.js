@@ -42,14 +42,15 @@ function init() {
 	
 	genAxisAlignedSlices2d( texData )
 	
+	/*
 	for( i = 0; i < N_SLICES; i++ ) {
 		console.log( xyPlus2dSlices[i][0] )
-	}
+	}*/
 	
 	//create 2D slice mesh data for each orientation
 	var sliceMeshes = [
 		sliceMeshXyPlus,
-		//sliceMeshXyMinus,
+		sliceMeshXyMinus,
 		//sliceMeshYzPlus,
 		//sliceMeshYzMinus,
 		//sliceMeshXzPlus,
@@ -59,10 +60,10 @@ function init() {
 	//logical slices 
 	var sliceSets = [
 		xyPlus2dSlices,
+		xyMinus2dSlices,
 		//yzPlus2dSlices,
-		//xzPlus2dSlices,
-		//xyMinus2dSlices,
 		//yzMinus2dSlices,
+		//xzPlus2dSlices,
 		//xzMinus2dSlices,
 	]
 	
@@ -89,7 +90,7 @@ function init() {
 		}
 	}
 	
-	
+	/*
 	meshVerts = gl.createBuffer()
 	gl.bindBuffer( gl.ARRAY_BUFFER, meshVerts )
 	
@@ -98,10 +99,13 @@ function init() {
 	
 	gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
 	gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
-	
+	*/
 	gl.enable( gl.BLEND )
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	gl.clearColor( 0, 0, 0, 1 )
+	
+	forceCanvasSize(gl.canvas)
+	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
 	
 	setInterval( function() {
 		rotY += 0.01
@@ -115,29 +119,35 @@ function update() {
 	
 	var proj = mat4.create()
 	var modelview = mat4.create()
-	mat4.ortho( modelview, -100, 100, -100, 100, -100, 100 )
+	//mat4.perspective( modelview, 1.0, 1.333, 0.1, 1000.0 )
+	mat4.ortho( proj, -100, 100, -100, 100, -100, 100 )
 	
+	//throw new Error();
 	
 	//mat4.ortho( proj, -45, 45, -45, 45, -45, 45 )
 	//mat4.rotateY( modelview, modelview, rotY )
 	mat4.rotateY( modelview, modelview, rotY )
-	mat4.translate( modelview, modelview, [ -texData.width / 2, -texData.height / 2, -texData.depth / 2 ] )
-	
-	
+	mat4.translate( modelview, modelview, [ -texData.width / 2, -texData.height / 2, texData.depth / 2 ] )
 	
 	var projModelview = mat4.create()
 	mat4.multiply( projModelview, proj, modelview )
 	
-	
 	gl.uniformMatrix4fv( projModelviewLoc, false, projModelview )
+	
+	/*
+	console.log( projModelview[0], projModelview[1], projModelview[2], projModelview[3] )
+	console.log( projModelview[4], projModelview[5], projModelview[6], projModelview[7] )
+	console.log( projModelview[8], projModelview[9], projModelview[10], projModelview[11] )
+	console.log( projModelview[12], projModelview[13], projModelview[14] ,projModelview[15] )*/
+	//throw new Error();
 	
 	//gl.enable( gl.DEPTH_TEST )
 	//gl.depthFunc( gl.LEQUAL )
 	
-	tex = genTex2d()
+	//tex = genTex2d()
 	
 	//nIndis = genMesh2d( texData, xyPlus2dSlices, meshVerts, meshIndis, tex )
-	nIndis = genMesh2dSlice( texData, xyPlus2dSlices[0], meshVerts, meshIndis, tex );
+	//nIndis = genMesh2dSlice( texData, xyPlus2dSlices[0], meshVerts, meshIndis, tex );
 	
 	//debug 
 	//nIndis = 64000
