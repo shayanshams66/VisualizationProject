@@ -27,6 +27,29 @@
 		<script src="code/texture.js"></script>
 		<!-- <script src="code/meshGen.js"></script> -->
 		<script src="code/init.js"></script>
+
+		<script type="text/javascript">
+
+			function show_plane() {
+    				if (document.getElementById('yesshow').checked) {
+        				document.getElementById('show').style.display = 'block';
+    				}
+    				else document.getElementById('show').style.display = 'none';
+
+				}
+
+		</script>
+		<script type="text/javascript">
+
+			function show_box() {
+    				if (document.getElementById('yesshow_box').checked) {
+        				document.getElementById('show_box').style.display = 'block';
+    				}
+    				else document.getElementById('show_box').style.display = 'none';
+
+				}
+
+		</script>
 	</head>
 
 	<body onload="init()">
@@ -42,11 +65,29 @@
 			<input type="radio" name="projection" value="tex_2D" checked />2D Texture: Object-aligned Slices<br/>
 			<input type="radio" name="projection" value="tex_3D" checked />3D Texture: View-aligned Slices<br/>
 		</form>
+
 		<h2>View Selection Mode:</h2>
 		<form>
 			<input type="radio" name="projection" value="clip_none" checked />No Clipping<br/>
-			<input type="radio" name="projection" value="clip_plane" checked />Clipping Plane<br/>
-			<input type="radio" name="projection" value="clip_box" checked />Clipping Box<br/>
+			<input type="radio" name="projection" value="clip_plane" onclick="javascript:show_plane();" id="yesshow" />Clipping Plane<br/>
+			
+    				<div id="show" style="display:none">
+					X+=<input type='text' id='X+' value="-1"><br>
+					X-=<input type='text' id='X-' value="100"><br>
+					Y+=<input type='text' id='Y+' value="-1"><br>
+					Y-=<input type='text' id='Y-' value="100"><br>
+					Z+=<input type='text' id='Z+' value="-1"><br>
+					Z-=<input type='text' id='Z-' value="100"><br>
+    				</div>
+			<input type="radio" name="projection" value="clip_box" onclick="javascript:show_box();" id="yesshow_box" />Clipping Box<br/>
+				<div id="show_box" style="display:none">
+					X=<input type='text' id='X' ><br>
+					Y=<input type='text' id='Y' ><br>
+					Z=<input type='text' id='Z' ><br>
+					layers=<input type='text' id='layers'><br>
+					rows=<input type='text' id='rows' ><br>
+					cols=<input type='text' id='cols' ><br>
+    				</div>
 		</form>
 	</body>
 </html>
