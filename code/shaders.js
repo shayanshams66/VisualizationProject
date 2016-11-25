@@ -22,11 +22,33 @@ var f_shader2d_src =
 precision mediump float;
 
 varying vec2 i_uv;
+uniform sampler2D samp;
 
  
 void main() {
-  gl_FragColor = vec4( 1.0, 1.0, 1.0, 0.5); 
+  //gl_FragColor = vec4( 1.0, 1.0, 1.0, 0.5); 
+  gl_FragColor = texture2D( samp, i_uv.xy );
 }`
+
+
+/*
+from: https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#No_3D_Texture_support
+vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord, float size) {
+   float sliceSize = 1.0 / size;                         // space of 1 slice
+   float slicePixelSize = sliceSize / size;              // space of 1 pixel
+   float sliceInnerSize = slicePixelSize * (size - 1.0); // space of size pixels
+   float zSlice0 = min(floor(texCoord.z * size), size - 1.0);
+   float zSlice1 = min(zSlice0 + 1.0, size - 1.0);
+   float xOffset = slicePixelSize * 0.5 + texCoord.x * sliceInnerSize;
+   float s0 = xOffset + (zSlice0 * sliceSize);
+   float s1 = xOffset + (zSlice1 * sliceSize);
+   vec4 slice0Color = texture2D(tex, vec2(s0, texCoord.y));
+   vec4 slice1Color = texture2D(tex, vec2(s1, texCoord.y));
+   float zOffset = mod(texCoord.z * size, 1.0);
+   return mix(slice0Color, slice1Color, zOffset);
+}
+*/
+
 
 function createShader(gl, type, source) {
 	var shader = gl.createShader(type)

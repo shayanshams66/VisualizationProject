@@ -85,11 +85,32 @@ function sample( texture, x, y, z ) {
 		samples[7] * xI * yI * zI )
 }
 
+//generate a 2d texture. returns a texture id 
+function genTex2d( texture ) {
+	/*
+	var buf = []
+	for( i = 0; i < TEX_DIM * TEX_DIM * 4; i += 4 ) {
+		buf[i] = 255;
+		buf[i + 3] = 255;
+	}
+	*/
+	var tex = gl.createTexture();
+	
+	gl.bindTexture( gl.TEXTURE_2D, tex );
+	//gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( buf ) )
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST );
+	
+	
+	return tex;
+}
+
+
 //Creates a set of 2D textures and the mesh
 //Sets the "id2d" parameter of the texture object to an array of texture ids
 //	- one for each slice. 
 //Writes to vBuf and iBuf 
-function genMesh2d( texture, slices, vBuf, iBuf ) {
+function genMesh2d( texture, slices, vBuf, iBuf, tex ) {
 	var nHorizChunks = vecDist( slices[0][1], slices[0][0] )
 	var nVertChunks = vecDist( slices[0][2], slices[0][0] )
 	
@@ -116,14 +137,32 @@ function genMesh2d( texture, slices, vBuf, iBuf ) {
 				var color = fnTransfer( samp, texture.min, texture.max )
 				texData.push( color[0], color[1], color[2], color[3] )
 				vertData.push( point[0], point[1], point[2], 0, 
-					col / nHorizChunks, row / nVertChunks, 0, 0 )
+					col / TEX_DIM, row / TEX_DIM, 0, 0 )
 					
 				point = vecAdd( point, horizStep )
+			}
+			
+			//pad texData 
+			for( col = nHorizChunks; col < TEX_DIM; col++ ) {
+				texData.push( 0, 0, 0, 0 )
 			}
 			
 			point = vecAdd( point, vecScale( horizStep, -nHorizChunks ) )
 			point = vecAdd( point, vertStep )
 		}
+		
+		//pad texData 
+		for( row = nVertChunks; row < TEX_DIM; row++ ) {
+			for( col = 0; col < TEX_DIM; col++ ) {
+				texData.push( 0, 0, 0, 0 );
+			}
+		}
+		
+		gl.bindTexture( gl.TEXTURE_2D, tex );
+		
+		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( texData ) )
+		
+		gl.generateMipmap( gl.TEXTURE_2D );
 		
 		/*
 		for( i = 6300; i < 6400; i++ ) {
@@ -146,8 +185,6 @@ function genMesh2d( texture, slices, vBuf, iBuf ) {
 			}
 			//indiStart += 1
 		}
-		
-		console.log( indiStart )
 	}
 	
 	/*

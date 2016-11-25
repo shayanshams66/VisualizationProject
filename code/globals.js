@@ -13,7 +13,15 @@ var vertsPerSlice = 4,
 	nSlices = 0,
 	nIndis;
 	
-var vBuf, iBuf; 
+var vBuf, iBuf, tex; 
+
+//each slice mesh is an array of [ vBuf, iBuf, tex ]
+var sliceMeshXyPlus = [],
+	sliceMeshXyMinus = [],
+	sliceMeshYzPlus = [],
+	sliceMeshYzMinus = [],
+	sliceMeshXzPlus = [],
+	sliceMeshXzMinus = []
 
 //Modifiable globals 
 var texMode = 'tex_2D'; //valid values: 'tex_2D', 'tex_3D'
@@ -32,3 +40,5 @@ var zoom = 1;
 //the order is as follows: X+, X-, Y+, Y-, Z+, Z-
 var clippingPlanes = [ -1, 81, -1, 81, -1, 81 ]
 
+var TEX_DIM = 128; 
+var TEX_DIM3D = 2048;

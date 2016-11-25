@@ -48,54 +48,13 @@ function init() {
 	gl.enableVertexAttribArray(uvLoc)
 	gl.enableVertexAttribArray(positionLoc)
 	
-	/*
-	//position attribute buf parameters
-	var size = 3,
-		type = gl.FLOAT,
-		normalize = false,
-		stride = 0,
-		offset = 0
-	
-	var vertElems = 8;
-	var vertSize = vertElems * 4;
-	
-	
-	//position attribute 
-	gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
-	gl.vertexAttribPointer( colorLoc, 4, gl.FLOAT, false, vertSize, 16 )
-
-	//color attribute
-	
-	// three 2d points
-	var positions = [
-	  -0.5, -0.5, 0, 0, 1, 0, 0, 1,
-	  0.5, -0.5, 0, 0, 1, 1, 0, 1,
-	  0, 0.5, 0, 0, 0, 0, 1, 1,
-	];
-	
-	var indis = [
-		0, 1, 2
-	]
-	
-	nVerts = positions.length / vertElems 
-	
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indis), gl.STATIC_DRAW);*/
-	
 	update()
 }
 
 function update() {
 	
 	
-	var modelview = mat4.create()
-	/*
-	mat4.set( modelview,  
-		0.01, 0, 0, 0, 
-		0, 0.01, 0, 0,
-		0, 0, 0.01, 0,
-		0, 0, 0,    1 );
-	*/
+	modelview = mat4.create()
 	mat4.ortho( modelview, -10, 90, -10, 90, -100, 100 )
 	gl.uniformMatrix4fv( modelviewLoc, false, modelview )
 	
@@ -104,8 +63,9 @@ function update() {
 	//gl.depthFunc( gl.LEQUAL )
 	gl.clearColor( 0, 0.25, 0, 1 )
 	
+	tex = genTex2d()
 	genAxisAlignedSlices2d( texData )
-	nIndis = genMesh2d( texData, xyPlus2dSlices, meshVerts, meshIndis )
+	nIndis = genMesh2d( texData, xyPlus2dSlices, meshVerts, meshIndis, tex )
 	
 	//debug 
 	//nIndis = 64000
