@@ -9,14 +9,15 @@ var xyPlus = [ 0, 0, -1 ],
 
 var currentSliceSet = xyPlus2dSlices;
 	
-var texBound3d = false;
+var bound3d = false;
+var bound2d = false;
 	
 function renderScene() {
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
 	
 	if( texMode === 'tex_2D' ) {
 		//currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
-		
+		/*
 		//calculate best plane set to use 
 		var modelview = mat4.create();
 		mat4.rotateZ( modelview, modelview, rotZ );
@@ -35,11 +36,16 @@ function renderScene() {
 			vec3.dot( tf, xzPlus ),
 			vec3.dot( tf, xzMinus ),
 			vec3.dot( tf, yzPlus ),
-			vec3.dot( tf, yzMinus )
+			vec3.dot( tf, yzMinus ;
+		}
+		else if( (vec3.dot( tf, yzPlus ) == minDot ) && (currentSliceSet != yzPlus2dSlices) ) {
+			freeSliceMesh( currentSliceMesh );
+			currentSliceMesh = loadSliceMesh( yzPlus2dSlices );
+			currentSliceSet = yzPlus2dSlic)
 		]
 		
 		var minDot = Math.min( dots[0], dots[1], dots[2], dots[3], dots[4], dots[5] )
-		/*
+		
 		if( (vec3.dot( tf, xyPlus ) == minDot) && (currentSliceSet != xyPlus2dSlices) ) {
 			freeSliceMesh( currentSliceMesh );
 			currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
@@ -48,12 +54,7 @@ function renderScene() {
 		else if( (vec3.dot( tf, xyMinus ) == minDot ) && (currentSliceSet != xyMinus2dSlices) ) {
 			freeSliceMesh( currentSliceMesh );
 			currentSliceMesh = loadSliceMesh( xyMinus2dSlices );
-			currentSliceSet = xyMinus2dSlices;
-		}
-		else if( (vec3.dot( tf, yzPlus ) == minDot ) && (currentSliceSet != yzPlus2dSlices) ) {
-			freeSliceMesh( currentSliceMesh );
-			currentSliceMesh = loadSliceMesh( yzPlus2dSlices );
-			currentSliceSet = yzPlus2dSlices;
+			currentSliceSet = xyMinus2dSliceses;
 		}
 		else if( (vec3.dot( tf, yzMinus ) == minDot ) && (currentSliceSet != yzMinus2dSlices) ) {
 			freeSliceMesh( currentSliceMesh );
@@ -72,29 +73,37 @@ function renderScene() {
 		}
 		*/
 		
+		if( !bound2d ) {
+			currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
+			currentSliceSet = xyPlus2dSlices;
+		}
+		
+		bound3d = false;
+		bound2d = true;
 		
 		render2d();
 		
-		texBound3d = false;
+		
 		//freeSliceMesh( currentSliceMesh )
 	} 
 	else if( texMode === 'tex_3D' ) {
+		bound2d = false;
 		
 		var viewSlices = genSlices(rotX, rotY, rotZ, N_SLICES, texData ); 
 		
 		
 		for( var s = 0; s < viewSlices.length; s++ ) {
 			for( var i = 0; i < 4; i++ ) {
-				//viewSlices[s][i][0] += texData.width / 2.0;
-				//viewSlices[s][i][1] += texData.height / 2.0;
-				//viewSlices[s][i][2] += texData.depth / 2.0;
+				viewSlices[s][i][0] += texData.width / 2.0;
+				viewSlices[s][i][1] += texData.height / 2.0;
+				viewSlices[s][i][2] += texData.depth / 2.0;
 			}
 		}
 		
 		var sliceMesh = loadSliceMesh3d( viewSlices )
 		
 		//genMesh3dSlice( texData, viewSlices[0], sliceMesh[0][0], sliceMesh[0][1], sliceMesh[0][2] )
-		if( !texBound3d ) {
+		if( !bound3d ) {
 			gl.bindTexture( gl.TEXTURE_2D, tex3d );
 			texBound3d = true;
 		}

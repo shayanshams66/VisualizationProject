@@ -254,8 +254,6 @@ function genMesh2dSlice( texture, slice, vBuf, iBuf, tex ) {
 	gl.bindBuffer( gl.ARRAY_BUFFER, vBuf );
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf );
 	
-	console.log( indis.length / 6 );
-	
 	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(vertData), gl.DYNAMIC_DRAW );
 	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, 
 		new Uint16Array(indis), gl.DYNAMIC_DRAW );

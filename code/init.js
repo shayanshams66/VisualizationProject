@@ -81,17 +81,19 @@ function init() {
 		return;
 	}
 	
-	//tex3d = genAndPopulateTex3d( texData );
+	tex3d = genAndPopulateTex3d( texData );
 	
-	//Create programs and get attribute bindings
+	//load program 2d
 	var v_shader2d = createShader( gl, gl.VERTEX_SHADER, v_shader_src );
 	var f_shader2d = createShader( gl, gl.FRAGMENT_SHADER, f_shader2d_src );
 	program2d = createProgram( gl, v_shader2d, f_shader2d );
 	
+	//load program 3d
 	var v_shader3d = createShader( gl, gl.VERTEX_SHADER, v_shader3d_src );
 	var f_shader3d = createShader( gl, gl.FRAGMENT_SHADER, f_shader3d_src );
 	program3d = createProgram( gl, v_shader3d, f_shader3d );
 	
+	//load 2d attrib locations
 	positionLoc2d = gl.getAttribLocation( program2d, "a_position" )
 	uvLoc2d = gl.getAttribLocation( program2d, "a_uv")
 	projModelviewLoc2d = gl.getUniformLocation( program2d, "proj_modelview" )
@@ -101,6 +103,7 @@ function init() {
 	gl.enableVertexAttribArray(uvLoc2d)
 	gl.enableVertexAttribArray(positionLoc2d)
 	
+	//load 3d attrib locations
 	positionLoc3d = gl.getAttribLocation( program3d, "a_position" )
 	uvLoc3d = gl.getAttribLocation( program3d, "a_uv")
 	projModelviewLoc3d = gl.getUniformLocation( program3d, "proj_modelview" )
@@ -112,74 +115,8 @@ function init() {
 	
 	genAxisAlignedSlices2d( texData )
 	
-	/*
-	for( i = 0; i < N_SLICES; i++ ) {
-		console.log( xyPlus2dSlices[i][0] )
-	}*/
-	
-	//create 2D slice mesh data for each orientation
-	/*
-	var sliceMeshes = [
-		sliceMeshXyPlus,
-		sliceMeshXyMinus,
-		//sliceMeshYzPlus,
-		//sliceMeshYzMinus,
-		//sliceMeshXzPlus,
-		//sliceMeshXzMinus,
-	]
-	*/
-	//logical slices 
-	/*
-	var sliceSets = [
-		xyPlus2dSlices,
-		xyMinus2dSlices,
-		yzPlus2dSlices,
-		yzMinus2dSlices,
-		xzPlus2dSlices,
-		xzMinus2dSlices,
-	]*/
-	/*
-	//slice mesh = [ v buffer, i buffer, texture ]
-	for( i = 0; i < sliceMeshes.length; i++ ) {
-		var sliceMesh = sliceMeshes[i]
-		var sliceSet = sliceSets[i]
-		/*
-		for( slice = 0; slice < N_SLICES; slice++ ) {
-			var verts = gl.createBuffer()
-			gl.bindBuffer( gl.ARRAY_BUFFER, verts )
-			
-			var indis = gl.createBuffer()
-			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indis )
-			
-			var tex = genTex2d();
-			
-			gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
-			gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
-			nIndis = genMesh2dSlice( texData, sliceSet[slice], verts, indis, tex );
-			
-			sliceMesh.push( [ verts, indis, tex ] )
-		}
-		*/
-		//sliceMeshes[i] = loadSliceMesh( sliceSet )
-		//console.log( sliceMeshes[i] == sliceMeshXyPlus, sliceSets[i] == xyPlus2dSlices )
-	//}*/
-	
-	//DEBUG: I have no idea why slice sets are reversed. It makes no sense and
-	//I'm running out of time to actually fix it. 
-	//sliceMeshXzPlus = loadSliceMesh( xzPlus2dSlices )
-	//sliceMeshXyMinus = loadSliceMesh( xyMinus2dSlices )
-	//sliceMeshXyPlus = loadSliceMesh( xyPlus2dSlices )
-	
-	//console.log( xyPlus2dSlices[0][0], xzPlus2dSlices[0][0] )
-	
-	currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
-	currentSliceSet = xyPlus2dSlices;
-	
-	//sliceMeshXzMinus = loadSliceMesh( xzMinus2dSlices )
-	//sliceMeshXzPlus = loadSliceMesh( xzPlus2dSlices )
-	
-	//gl.bindBuffer( gl.ARRAY_BUFFER, null );
-	//gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+	//currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
+	//currentSliceSet = xyPlus2dSlices;
 	
 	gl.enable( gl.BLEND )
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -203,7 +140,10 @@ function update() {
 	else if( texMode === 'tex_3D' ) {
 		gl.useProgram( program3d );
 	}
-	
+	else {
+		console.log( "bad texture mode" );
+	}
+	/*
 	var scale = 0.5
 	var scaleInv = 1.0 / scale 
 	
@@ -228,7 +168,7 @@ function update() {
 	else if( texMode === 'tex_3D' ) {
 		gl.uniformMatrix4fv( projModelviewLoc3d, false, projModelview )
 	}
-	
+	*/
 	/*
 	console.log( projModelview[0], projModelview[1], projModelview[2], projModelview[3] )
 	console.log( projModelview[4], projModelview[5], projModelview[6], projModelview[7] )

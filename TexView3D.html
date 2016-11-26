@@ -50,6 +50,35 @@
 				}
 
 		</script>
+		<script type="text/javascript">
+			function getRadio( name ) {
+				var elems = document.getElementsByName( name );
+				var value = null;
+				
+				for( var i = 0; i < elems.length; i++ ) {
+					if( elems[i].checked )
+						value = elems[i].value;
+				}
+				
+				return value;
+			}
+			
+			function getNumInput( id ) {
+				return parseFloat( document.getElementById( id ).value );
+			}
+		
+			function onUpdateParams() {
+				//projection mode 
+				texMode = getRadio( "projection" );
+				
+				//clipping mode
+				clipMode = getRadio( "clipMode" );
+				
+				if( clipMode === "clip_plane" ) {
+					clippingPlanes[0] = getNumInput( "X+" );
+				}
+			}
+		</script>
 	</head>
 
 	<body onload="init()">
@@ -63,23 +92,22 @@
 		<h2>Texture Mode:</h2>
 		<form>
 			<input type="radio" name="projection" value="tex_2D" checked />2D Texture: Object-aligned Slices<br/>
-			<input type="radio" name="projection" value="tex_3D" checked />3D Texture: View-aligned Slices<br/>
+			<input type="radio" name="projection" value="tex_3D" />3D Texture Mode<br/>
 		</form>
 
 		<h2>View Selection Mode:</h2>
 		<form>
-			<input type="radio" name="projection" value="clip_none" checked />No Clipping<br/>
-			<input type="radio" name="projection" value="clip_plane" onclick="javascript:show_plane();" id="yesshow" />Clipping Plane<br/>
-			
-    				<div id="show" style="display:none">
-					X+=<input type='text' id='X+' value="-1"><br>
-					X-=<input type='text' id='X-' value="100"><br>
-					Y+=<input type='text' id='Y+' value="-1"><br>
-					Y-=<input type='text' id='Y-' value="100"><br>
-					Z+=<input type='text' id='Z+' value="-1"><br>
-					Z-=<input type='text' id='Z-' value="100"><br>
-    				</div>
-			<input type="radio" name="projection" value="clip_box" onclick="javascript:show_box();" id="yesshow_box" />Clipping Box<br/>
+			<input type="radio" name="clipMode" value="clip_none" checked />No Clipping<br/>
+			<input type="radio" name="clipMode" value="clip_plane" onclick="javascript:show_plane();" id="yesshow" />Clipping Plane<br/>
+				<div id="show" style="display:none">
+					X+=<input type='text' id='X+' value="80"><br>
+					X-=<input type='text' id='X-' value="0"><br>
+					Y+=<input type='text' id='Y+' value="80"><br>
+					Y-=<input type='text' id='Y-' value="0"><br>
+					Z+=<input type='text' id='Z+' value="80"><br>
+					Z-=<input type='text' id='Z-' value="8"><br>
+				</div>
+			<input type="radio" name="clipMode" value="clip_box" onclick="javascript:show_box();" id="yesshow_box" />Clipping Box<br/>
 				<div id="show_box" style="display:none">
 					X=<input type='text' id='X' ><br>
 					Y=<input type='text' id='Y' ><br>
@@ -87,7 +115,8 @@
 					layers=<input type='text' id='layers'><br>
 					rows=<input type='text' id='rows' ><br>
 					cols=<input type='text' id='cols' ><br>
-    				</div>
+    			</div>
 		</form>
+		<button onclick="onUpdateParams()">Update</button>
 	</body>
 </html>
