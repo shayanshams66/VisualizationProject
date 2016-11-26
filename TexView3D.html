@@ -4,7 +4,17 @@
 		<style>
 			body {
 				border: 0;
-				background-color: white;
+				background-color: #EEE;
+				margin: 40px;
+				max-width: 650px;
+				line-height: 1.6;
+				font-size: 18px;
+				color: #333; 
+				padding: 0 10px;
+			}
+			
+			h1, h2, h3 {
+				line-height: 1.2;
 			}
 
 			canvas {
@@ -68,6 +78,19 @@
 			}
 		
 			function onUpdateParams() {
+				//rotation mode 
+				var rotMode = getRadio( "rotation" );
+				if( rotMode == "autoRot" ) {
+					autoRotate = true;
+				}
+				else {
+					autoRotate = false;
+					
+					rotX = getNumInput( "xRot" ) / 360.0 * Math.PI * 2.0;
+					rotY = getNumInput( "yRot" ) / 360.0 * Math.PI * 2.0;
+					rotZ = getNumInput( "zRot" ) / 360.0 * Math.PI * 2.0;
+				}
+			
 				//projection mode 
 				texMode = getRadio( "projection" );
 				
@@ -121,6 +144,18 @@
 		</canvas>
 	  
 		<h1>Settings</h1>
+		
+		<h2>View:</h2>
+		<form>
+			<input type="radio" name="rotation" value="autoRot" checked/>Auto-rotate<br/>
+			<input type="radio" name="rotation" value="manRot" />Manual rotation:<br/>
+			<div id="showRot">
+				X = <input type='text' id='xRot' value="0"><br>
+				Y = <input type='text' id='yRot' value="0"><br>
+				Z = <input type='text' id='zRot' value="0"><br>
+			</div>
+		</form>
+		
 		<h2>Texture Mode:</h2>
 		<form>
 			<input type="radio" name="projection" value="tex_2D" checked />2D Texture: Object-aligned Slices<br/>

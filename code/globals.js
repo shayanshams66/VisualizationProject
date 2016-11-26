@@ -50,6 +50,7 @@ var projection = mat4.create();
 var rotX = 0,
 	rotY = 0,
 	rotZ = 0;
+var autoRotate = true;
 
 //to be used later	
 var zoom = 1; 

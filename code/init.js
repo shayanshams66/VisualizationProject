@@ -126,7 +126,10 @@ function init() {
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
 
 	setInterval( function() {
-		rotY += 0.02
+		if( autoRotate ) {
+			rotY += 0.01
+		}
+		
 		//rotZ += 0.009
 		//rotX += 0.005
 		update()
