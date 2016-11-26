@@ -72,10 +72,42 @@
 				texMode = getRadio( "projection" );
 				
 				//clipping mode
-				clipMode = getRadio( "clipMode" );
+				var clipMode = getRadio( "clipMode" );
 				
 				if( clipMode === "clip_plane" ) {
 					clippingPlanes[0] = getNumInput( "X+" );
+					clippingPlanes[1] = getNumInput( "X-" );
+					clippingPlanes[2] = getNumInput( "Y+" );
+					clippingPlanes[3] = getNumInput( "Y-" );
+					clippingPlanes[4] = getNumInput( "Z+" );
+					clippingPlanes[5] = getNumInput( "Z-" );
+				}
+				else if( clipMode === "clip_box" ) {
+					var x = getNumInput( "X" );
+					var y = getNumInput( "Y" );
+					var z = getNumInput( "Z" );
+					var l = getNumInput( "layers" );
+					var r = getNumInput( "rows" );
+					var c = getNumInput( "cols" );
+					
+					console.log( x, y, z, l, r, c, x+c, y+r, z+l );
+					
+					clippingPlanes[1] = x;
+					clippingPlanes[0] = x + c;
+					
+					clippingPlanes[3] = y;
+					clippingPlanes[2] = y + r;
+					
+					clippingPlanes[5] = z;
+					clippingPlanes[4] = z + l;
+				}
+				else {
+					clippingPlanes[0] = 80;
+					clippingPlanes[1] = 0;
+					clippingPlanes[2] = 80;
+					clippingPlanes[3] = 0;
+					clippingPlanes[4] = 80;
+					clippingPlanes[5] = 0;
 				}
 			}
 		</script>
@@ -99,22 +131,22 @@
 		<form>
 			<input type="radio" name="clipMode" value="clip_none" checked />No Clipping<br/>
 			<input type="radio" name="clipMode" value="clip_plane" onclick="javascript:show_plane();" id="yesshow" />Clipping Plane<br/>
-				<div id="show" style="display:none">
+				<div id="show">
 					X+=<input type='text' id='X+' value="80"><br>
 					X-=<input type='text' id='X-' value="0"><br>
 					Y+=<input type='text' id='Y+' value="80"><br>
 					Y-=<input type='text' id='Y-' value="0"><br>
 					Z+=<input type='text' id='Z+' value="80"><br>
-					Z-=<input type='text' id='Z-' value="8"><br>
+					Z-=<input type='text' id='Z-' value="0"><br>
 				</div>
 			<input type="radio" name="clipMode" value="clip_box" onclick="javascript:show_box();" id="yesshow_box" />Clipping Box<br/>
-				<div id="show_box" style="display:none">
-					X=<input type='text' id='X' ><br>
-					Y=<input type='text' id='Y' ><br>
-					Z=<input type='text' id='Z' ><br>
-					layers=<input type='text' id='layers'><br>
-					rows=<input type='text' id='rows' ><br>
-					cols=<input type='text' id='cols' ><br>
+				<div id="show_box">
+					X=<input type='text' id='X' value="0" ><br>
+					Y=<input type='text' id='Y' value="0" ><br>
+					Z=<input type='text' id='Z' value="0" ><br>
+					layers=<input type='text' id='layers' value="80"><br>
+					rows=<input type='text' id='rows' value="80" ><br>
+					cols=<input type='text' id='cols' value="80" ><br>
     			</div>
 		</form>
 		<button onclick="onUpdateParams()">Update</button>
