@@ -3,10 +3,15 @@ var program2d; //shader program
 var program3d;
 
 //shader attribute and uniform locations 
-var positionLoc,
-	uvLoc,
-	projModelviewLoc
+var positionLoc2d,
+	uvLoc2d,
+	projModelviewLoc2d,
+	positionLoc3d,
+	uvwLoc3d,
+	projModelviewLoc3d;
 
+var tex3d; //single 3d texture
+	
 var meshVerts; //vertex buffer 
 var meshIndis; //index buffer
 var vertsPerSlice = 4,
@@ -51,8 +56,10 @@ var zoom = 1;
 
 //each element of this array is the value of one clip plane 
 //the order is as follows: X+, X-, Y+, Y-, Z+, Z-
-var clipPosLoc, clipNegLoc;
+var clipPosLoc2d, clipNegLoc2d;
+var clipPosLoc3d, clipNegLoc3d;
 var clippingPlanes = [ 81, -1, 81, -1, 81, -1 ]
 
 var TEX_DIM = 128; 
-//var TEX_DIM3D = 2048;
+var TEX_DIM3D_X = 640;
+var TEX_DIM3D_Y = 80;

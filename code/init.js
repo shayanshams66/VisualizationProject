@@ -28,9 +28,30 @@ function loadSliceMesh( slices ) {
 		
 		var tex = genTex2d();
 		
-		gl.vertexAttribPointer( positionLoc, 3, gl.FLOAT, false, vertSize, 0 )
-		gl.vertexAttribPointer( uvLoc, 2, gl.FLOAT, false, vertSize, 16 )
+		gl.vertexAttribPointer( positionLoc2d, 3, gl.FLOAT, false, vertSize, 0 )
+		gl.vertexAttribPointer( uvLoc2d, 2, gl.FLOAT, false, vertSize, 16 )
 		nIndis = genMesh2dSlice( texData, slices[s], verts, indis, tex );
+		
+		ret[s] = [verts, indis, tex];
+		//sliceMesh.push( [ verts, indis, tex ] )
+	}
+	
+	return ret
+}
+
+function loadSliceMesh3d( slices ) {
+	var ret = new Array()
+	
+	for( s = 0; s < N_SLICES; s++ ) {
+		var verts = gl.createBuffer()
+		gl.bindBuffer( gl.ARRAY_BUFFER, verts )
+		
+		var indis = gl.createBuffer()
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, indis )
+		
+		gl.vertexAttribPointer( positionLoc3d, 3, gl.FLOAT, false, vertSize, 0 )
+		gl.vertexAttribPointer( uvLoc3d, 3, gl.FLOAT, false, vertSize, 16 )
+		nIndis = genMesh3dSlice( texData, slices[s], verts, indis );
 		
 		ret[s] = [verts, indis, tex];
 		//sliceMesh.push( [ verts, indis, tex ] )
@@ -48,6 +69,7 @@ function freeSliceMesh( sm ) {
 	}
 }
 
+
 function init() {
 	var canvas = document.getElementById("glcanvas")
 
@@ -59,21 +81,34 @@ function init() {
 		return;
 	}
 	
+	//tex3d = genAndPopulateTex3d( texData );
+	
 	//Create programs and get attribute bindings
-	var v_shader = createShader( gl, gl.VERTEX_SHADER, v_shader_src )
-	var f_shader2d = createShader( gl, gl.FRAGMENT_SHADER, f_shader2d_src )
-	program2d = createProgram( gl, v_shader, f_shader2d )
+	var v_shader2d = createShader( gl, gl.VERTEX_SHADER, v_shader_src );
+	var f_shader2d = createShader( gl, gl.FRAGMENT_SHADER, f_shader2d_src );
+	program2d = createProgram( gl, v_shader2d, f_shader2d );
 	
-	positionLoc = gl.getAttribLocation( program2d, "a_position" )
-	uvLoc = gl.getAttribLocation( program2d, "a_uv")
-	projModelviewLoc = gl.getUniformLocation( program2d, "proj_modelview" )
-	clipPosLoc = gl.getUniformLocation( program2d, "posClip" )
-	clipNegLoc = gl.getUniformLocation( program2d, "negClip" )
+	var v_shader3d = createShader( gl, gl.VERTEX_SHADER, v_shader3d_src );
+	var f_shader3d = createShader( gl, gl.FRAGMENT_SHADER, f_shader3d_src );
+	program3d = createProgram( gl, v_shader3d, f_shader3d );
 	
-	gl.enableVertexAttribArray(uvLoc)
-	gl.enableVertexAttribArray(positionLoc)
+	positionLoc2d = gl.getAttribLocation( program2d, "a_position" )
+	uvLoc2d = gl.getAttribLocation( program2d, "a_uv")
+	projModelviewLoc2d = gl.getUniformLocation( program2d, "proj_modelview" )
+	clipPosLoc2d = gl.getUniformLocation( program2d, "posClip" )
+	clipNegLoc2d = gl.getUniformLocation( program2d, "negClip" )
 	
-	gl.useProgram( program2d )
+	gl.enableVertexAttribArray(uvLoc2d)
+	gl.enableVertexAttribArray(positionLoc2d)
+	
+	positionLoc3d = gl.getAttribLocation( program3d, "a_position" )
+	uvLoc3d = gl.getAttribLocation( program3d, "a_uv")
+	projModelviewLoc3d = gl.getUniformLocation( program3d, "proj_modelview" )
+	clipPosLoc3d = gl.getUniformLocation( program3d, "posClip" )
+	clipNegLoc3d = gl.getUniformLocation( program3d, "negClip" )
+	
+	gl.enableVertexAttribArray(uvLoc3d)
+	gl.enableVertexAttribArray(positionLoc3d)
 	
 	genAxisAlignedSlices2d( texData )
 	
@@ -138,25 +173,23 @@ function init() {
 	//console.log( xyPlus2dSlices[0][0], xzPlus2dSlices[0][0] )
 	
 	currentSliceMesh = loadSliceMesh( xyPlus2dSlices );
+	currentSliceSet = xyPlus2dSlices;
 	
 	//sliceMeshXzMinus = loadSliceMesh( xzMinus2dSlices )
 	//sliceMeshXzPlus = loadSliceMesh( xzPlus2dSlices )
 	
-	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+	//gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	//gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
 	
-	//sliceMeshYzPlus = loadSliceMesh( sliceSets[2] )
-	//sliceMeshXyMinus = loadSliceMesh
-
 	gl.enable( gl.BLEND )
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	gl.clearColor( 0, 0, 0, 1 )
 	
 	forceCanvasSize(gl.canvas)
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-	
+
 	setInterval( function() {
-		rotY += 0.01
+		rotY += 0.02
 		//rotZ += 0.009
 		//rotX += 0.005
 		update()
@@ -164,6 +197,13 @@ function init() {
 }
 
 function update() {
+	if( texMode === 'tex_2D' ) {
+		gl.useProgram( program2d );
+	}
+	else if( texMode === 'tex_3D' ) {
+		gl.useProgram( program3d );
+	}
+	
 	var scale = 0.5
 	var scaleInv = 1.0 / scale 
 	
@@ -182,7 +222,12 @@ function update() {
 	var projModelview = mat4.create()
 	mat4.multiply( projModelview, proj, modelview )
 	
-	gl.uniformMatrix4fv( projModelviewLoc, false, projModelview )
+	if( texMode === 'tex_2D' ) {
+		gl.uniformMatrix4fv( projModelviewLoc2d, false, projModelview )
+	}
+	else if( texMode === 'tex_3D' ) {
+		gl.uniformMatrix4fv( projModelviewLoc3d, false, projModelview )
+	}
 	
 	/*
 	console.log( projModelview[0], projModelview[1], projModelview[2], projModelview[3] )

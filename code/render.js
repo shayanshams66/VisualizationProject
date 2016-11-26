@@ -9,6 +9,8 @@ var xyPlus = [ 0, 0, -1 ],
 
 var currentSliceSet = xyPlus2dSlices;
 	
+var texBound3d = false;
+	
 function renderScene() {
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
 	
@@ -73,15 +75,37 @@ function renderScene() {
 		
 		render2d();
 		
+		texBound3d = false;
 		//freeSliceMesh( currentSliceMesh )
 	} 
 	else if( texMode === 'tex_3D' ) {
 		
+		var viewSlices = genSlices(rotX, rotY, rotZ, N_SLICES, texData ); 
+		
+		
+		for( var s = 0; s < viewSlices.length; s++ ) {
+			for( var i = 0; i < 4; i++ ) {
+				//viewSlices[s][i][0] += texData.width / 2.0;
+				//viewSlices[s][i][1] += texData.height / 2.0;
+				//viewSlices[s][i][2] += texData.depth / 2.0;
+			}
+		}
+		
+		var sliceMesh = loadSliceMesh3d( viewSlices )
+		
+		//genMesh3dSlice( texData, viewSlices[0], sliceMesh[0][0], sliceMesh[0][1], sliceMesh[0][2] )
+		if( !texBound3d ) {
+			gl.bindTexture( gl.TEXTURE_2D, tex3d );
+			texBound3d = true;
+		}
+		
+		render3d()
+		
+		freeSliceMesh( sliceMesh )
 	}
 }
 
-
-function render2d() {
+function render3d() {
 	var proj = mat4.create()
 	
 	mat4.ortho( proj, -100, 100, -100, 100, -100, 100 );
@@ -98,14 +122,57 @@ function render2d() {
 		var projModelview = mat4.create();
 		mat4.multiply( projModelview, proj, modelview );
 		
-		gl.uniformMatrix4fv( projModelviewLoc, false, projModelview );
+		gl.uniformMatrix4fv( projModelviewLoc3d, false, projModelview );
 		
 		var cPlanes = clippingPlanes;
 		var posPlanes = [ cPlanes[0], cPlanes[2], cPlanes[4] ];
 		var negPlanes = [ cPlanes[1], cPlanes[3], cPlanes[5] ];
 		
-		gl.uniform3fv( clipPosLoc, posPlanes )
-		gl.uniform3fv( clipNegLoc, negPlanes )
+		gl.uniform3fv( clipPosLoc3d, posPlanes )
+		gl.uniform3fv( clipNegLoc3d, negPlanes )
+		
+		var sliceMesh = currentSliceMesh[slice];
+		var vbuf = sliceMesh[0],
+			ibuf = sliceMesh[1],
+			tex = sliceMesh[2];
+			
+		gl.bindBuffer( gl.ARRAY_BUFFER, vbuf );
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, ibuf );
+		gl.bindTexture( gl.TEXTURE_2D, tex );
+		
+		gl.drawElements( gl.TRIANGLES, nIndis, gl.UNSIGNED_SHORT, 0 );
+	}
+}
+
+function render2d() {
+	var proj = mat4.create()
+	
+	mat4.ortho( proj, -100, 100, -100, 100, -100, 100 );
+	
+	
+	//Draw slices in correct view order. 
+	for( slice = 0; slice < N_SLICES; slice++ ) {
+		var modelview = mat4.create();
+		mat4.rotateZ( modelview, modelview, rotZ );
+		mat4.rotateY( modelview, modelview, rotY );
+		mat4.rotateX( modelview, modelview, rotX );
+		
+		//need to do this due to Z-clearing bug 
+		if( currentSliceSet == xyPlus2dSlices ) {
+			mat4.translate( modelview, modelview, [ -texData.width / 2, -texData.height / 2, slice - N_SLICES / 2.0, 1 ] );
+		}
+		
+		var projModelview = mat4.create();
+		mat4.multiply( projModelview, proj, modelview );
+		
+		gl.uniformMatrix4fv( projModelviewLoc2d, false, projModelview );
+		
+		var cPlanes = clippingPlanes;
+		var posPlanes = [ cPlanes[0], cPlanes[2], cPlanes[4] ];
+		var negPlanes = [ cPlanes[1], cPlanes[3], cPlanes[5] ];
+		
+		gl.uniform3fv( clipPosLoc2d, posPlanes )
+		gl.uniform3fv( clipNegLoc2d, negPlanes )
 		
 		var sliceMesh = currentSliceMesh[slice];
 		var vbuf = sliceMesh[0],

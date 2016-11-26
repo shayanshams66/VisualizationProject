@@ -23,9 +23,9 @@ function genSlices(rotX, rotY, rotZ, nSlices, texture )
     var Crotx = Math.cos(rotX); var Croty = Math.cos(rotY); var Crotz = Math.cos(rotZ);
     var Srotx = Math.sin(rotX); var Sroty = Math.sin(rotY); var Srotz = Math.sin(rotZ);
     // console.log(rotX, rotY, rotZ);
-    console.log("trig values");
-    console.log(Crotx, Croty, Crotz);
-    console.log(Srotx, Sroty, Srotz);
+    //console.log("trig values");
+    //console.log(Crotx, Croty, Crotz);
+    //console.log(Srotx, Sroty, Srotz);
     // console.log(texture);
 
     // following the idea, we first get a slice 0 (origin crossing), then generate
@@ -38,12 +38,14 @@ function genSlices(rotX, rotY, rotZ, nSlices, texture )
 
     // get shfit direction, camera -> origin direction
     shift_dir  =[ Crotx*Crotz*Sroty + Srotx*Srotz,-Crotz*Srotx + Crotx*Sroty*Srotz,  Crotx*Croty];
-    console.log("shift direction");
-    console.log(shift_dir);
+    //console.log("shift direction");
+    //console.log(shift_dir);
     shift_gap = 0.1; // XXX
     shift_num = nSlices/2; // number of postive slice OR negative slice
 
-    sliceArray = [];
+    var sliceArray = [];
+	var sliceArrayPos = []
+	var sliceArrayNeg = []
     for(i = 0; i < shift_num; i++)
     {
         var v0p = [slice0[0][0] + i*shift_gap*shift_dir[0],  //x 
@@ -57,7 +59,7 @@ function genSlices(rotX, rotY, rotZ, nSlices, texture )
                    slice0[2][2] + i*shift_gap*shift_dir[2]]; //z
         var v3p = [slice0[3][0] + i*shift_gap*shift_dir[0],  //x 
                    slice0[3][1] + i*shift_gap*shift_dir[1],  //y
-                   slice0[3][2] + i*shift_gap*shift_dir[2]]; //z
+                   slice0[3][2] + i*shift_gap*shift_dir[2]]; //z		   
         slice_pos = [v0p, v1p, v2p, v3p]; // postive shift of slice
 
         var v0n = [slice0[0][0] - i*shift_gap*shift_dir[0],  //x 
@@ -80,7 +82,7 @@ function genSlices(rotX, rotY, rotZ, nSlices, texture )
     return sliceArray;
 }
 
-
+/*
 function renderScene() {
 	forceCanvasSize(gl.canvas)
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
@@ -117,3 +119,4 @@ function czTest() {
     //     gl.drawArrays( gl.TRIANGLES, 0, nVerts ); 
     // }
 }
+*/

@@ -38,11 +38,11 @@ function sample( texture, x, y, z ) {
 	}*/
 	
 	if ( x < 0 ) { x = 0 } 
-	if ( x >= texture.width ) { x = texture.width - 1 }
+	if ( x >= texture.width - 1 ) { x = texture.width - 1 }
 	if ( y < 0 ) { y = 0 } 
-	if ( y >= texture.height ) { y = texture.height - 1 }
+	if ( y >= texture.height - 1 ) { y = texture.height - 1 }
 	if ( z < 0 ) { z = 0 } 
-	if ( z >= texture.depth ) { z = texture.depth - 1 }
+	if ( z >= texture.depth - 1 ) { z = texture.depth - 1 }
 	
 	
 	/*
@@ -65,6 +65,8 @@ function sample( texture, x, y, z ) {
 		zLo = Math.floor(z),
 		zHi = Math.ceil(z)
 	
+	//console.log( zLo, yLo, xLo )
+	//console.log( zHi, yHi, xHi )
 	
 	var samples = [
 		texture.samples[ zLo ][ yLo ][ xLo ],
@@ -96,7 +98,7 @@ function sample( texture, x, y, z ) {
 }
 
 //generate a 2d texture. returns a texture id 
-function genTex2d( texture ) {
+function genTex2d( ) {
 	/*
 	var buf = []
 	for( i = 0; i < TEX_DIM * TEX_DIM * 4; i += 4 ) {
@@ -116,6 +118,65 @@ function genTex2d( texture ) {
 	
 	return tex;
 }
+
+function genAndPopulateTex3d( texture ) {
+	var tex = gl.createTexture();
+	
+	gl.bindTexture( gl.TEXTURE_2D, tex );
+	//gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( buf ) )
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST );
+	
+	var texData = new Array();
+	
+	/*
+	for( lay = 0; lay < texture.depth; lay++ ) {
+		for( row = 0; row < texture.height; row++ ) {
+			for( col = 0; col < texture.weidth; col++ ) {
+				var samp = sample( texture, col, row, lay );
+				var color = fnTransfer( samp, texture.min, texture.max )
+				texData.push( color[0], color[1], color[2], color[3] )
+			}
+		}
+	}
+	*/
+	
+	for( var slice = 0; slice < TEX_DIM3D_Y; slice++ ) {
+		for( var row = 0; row < TEX_DIM3D_Y; row++ ) {
+			for( var col = 0; col < TEX_DIM3D_Y; col++ ) {
+				var x = row * TEX_DIM3D_Y + col;
+				var y = slice; 
+				
+				var samp = sample( texture, col, row, slice );
+				var color = fnTransfer( samp, texture.min, texture.max );
+				//console.log( color );
+				texData.push( color[0], color[1], color[2], color[3] );
+			}
+		}
+	}
+	
+	gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM3D_X, TEX_DIM3D_Y, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( texData ) )
+	
+	return tex;
+}
+
+/*
+function genTex3d() {
+	var tex = gl.createTexture();
+	
+	gl.bindTexture( gl.TEXTURE_3D, tex );
+	//gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, TEX_DIM, TEX_DIM, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( buf ) )
+	gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texParameteri( gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
+	gl.texParameteri( gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST );
+	
+	
+	return tex;
+}
+*/
 
 var w = 0
 
@@ -190,17 +251,92 @@ function genMesh2dSlice( texture, slice, vBuf, iBuf, tex ) {
 		//indiStart += 1
 	}
 	
+	gl.bindBuffer( gl.ARRAY_BUFFER, vBuf );
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf );
+	
+	console.log( indis.length / 6 );
+	
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(vertData), gl.DYNAMIC_DRAW );
+	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, 
+		new Uint16Array(indis), gl.DYNAMIC_DRAW );
+		
+	return indis.length;
+}
+
+function genMesh3dSlice( texture, slice, vBuf, iBuf, tex ) {
+	var nHorizChunks = vecDist( slice[1], slice[0] )
+	var nVertChunks = vecDist( slice[2], slice[0] )
+	
+	//console.log( slice[0], slice[1], slice[2], slice[3] )
+	
+	//console.log( nHorizChunks, nVertChunks )
+	
+	var steps = N_SLICES
+	
+	var horizStep = vecStep( slice[1], slice[0], steps )
+	var vertStep = vecStep( slice[2], slice[0], steps )
+	
+	//format: x, y, z, 0, u, v, w, 0 
+	var vertData = []
+	var indis = []
+	
+	var texData = []
+	var point = slice[0]
+	
+	for( row = 0; row < steps; row++ ) {
+		for( col = 0; col < steps; col++ ) {
+			//var samp = sample( texture, point[0], point[1], point[2] )
+			//var color = fnTransfer( samp, texture.min, texture.max )
+			//texData.push( color[0], color[1], color[2], color[3] )
+			vertData.push( point[0], point[1], point[2], 0, 
+				point[0] / TEX_DIM, point[1] / TEX_DIM, point[2] / TEX_DIM, 0 )
+				
+			point = vecAdd( point, horizStep )
+		}
+		
+		//pad texData 
+		for( col = steps; col < TEX_DIM; col++ ) {
+			texData.push( 0, 0, 0, 0 )
+		}
+		
+		point = vecAdd( point, vecScale( horizStep, -nHorizChunks ) )
+		point = vecAdd( point, vertStep )
+	}
+	
+	//pad texData 
+	for( row = steps; row < TEX_DIM; row++ ) {
+		for( col = 0; col < TEX_DIM; col++ ) {
+			texData.push( 0, 0, 0, 0 );
+		}
+	}
+	
+	var indiStart = 0
+	
+	//generate indices
+	for( row = 0; row < steps - 1; row++ ) {
+		for( col = 0; col < steps - 1; col++ ) {
+			var indiStart = row * steps + col 
+			indis.push( indiStart, indiStart + 1, indiStart + steps, 
+				indiStart + 1, indiStart + steps, indiStart + steps + 1 )
+			//indiStart += 1
+			
+			//console.log( indiStart, indiStart + 1, indiStart + steps, 
+			//	indiStart + 1, indiStart + steps, indiStart + steps + 1 )
+		}
+		//indiStart += 1
+	}
+	
 	gl.bindBuffer( gl.ARRAY_BUFFER, vBuf )
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, iBuf )
 
-	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(vertData), gl.DYNAMIC_DRAW )
+	//console.log( indis.length / 6 )
+	
+	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(vertData), gl.DYNAMIC_DRAW)
 	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, 
 		new Uint16Array(indis), gl.DYNAMIC_DRAW )
 		
 	return indis.length
 }
-
-
 
 
 /*

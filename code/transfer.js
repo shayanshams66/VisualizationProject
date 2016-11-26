@@ -18,5 +18,5 @@ function fnTransfer(scalar, low, high) {
 	
 	//scalar now in [0..1] 
 	
-	return [ Math.floor( (scalar) * 255 ), 0, Math.floor(1.0 - scalar * 255), Math.floor( scalar * 255 ) + 0 ];
+	return [ Math.floor( (scalar) * 255 ), 0, Math.floor(255.0 - scalar * 255), Math.floor( scalar * 255 ) + 0 ];
 }
