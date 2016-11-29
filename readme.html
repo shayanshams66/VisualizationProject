@@ -80,6 +80,7 @@
 			<li><a href="#perf">Performance</a></li>
 			<li><a href="#future">Future Work</a></li>
 			<li><a href="#issues">Known Issues</a></li>
+			<li><a href="#value">Notable Successes</a></li>
 		</ol>
 		
 		<h2 id="intro">Objective</h2>
@@ -110,30 +111,44 @@
 		
 		<h2 id="inter">Interactions and Features</h2>
 		<p>
-			The user has the following options:
+			The user has the following options to customize the display of the volume:
 		</p>
 		<ul>
-			<li>View options: either allow the volume to smoothly <b>auto-rotate</b> around the Y axis, or allow the user to manually specify the degrees to rotate around each axis (Euler angles).</li>
+			<li><b>View options:</b> either allow the volume to smoothly <b>auto-rotate</b> around the Y axis, or allow the user to <b>manually</b> specify the degrees to rotate around each axis (Euler angles).</li>
 			
-			<li>Texture mode: allows the user to use 2D or 3D visualization. This is subject to limitations as listed below.</li>
+			<li><b>Texture mode:</b> allows the user to use <b>2D</b> or <b>3D</b> texture-based visualization. This option is subject to limitations as listed below.</li>
 			
-			<li>Clipping mode: allows the user to select between <b>no clipping</b>, <b>plane-based clipping</b>, and <b>box clipping</b>. For plane clipping, 6 planes are availible. Each axis has two planes, one which bounds the volume from above (the positive plane) and one which bounds from below (the negative plane). For box based clipping, the user can select the x, y, z coordinate of the least-significant vertex of the clipping box, along with the number of layers, rows, and columns to be visible. Fractional values are allowed. Clipping is subject to some limitations which are described below. In particular, Z-coordinate-based clipping parameters do not work correctly. The labels of these parameters are displayed in <span style="color:brown;">brown</span>. </li>
+			<li><b>Clipping mode:</b> allows the user to select between <b>no clipping</b>, <b>plane-based clipping</b>, and <b>box clipping</b>. For plane clipping, 6 planes are availible. Each axis has two planes, one which bounds the volume from above (the positive plane) and one which bounds from below (the negative plane). For box based clipping, the user can select the x, y, z coordinate of the least-significant vertex of the clipping box, along with the number of layers, rows, and columns to be visible. Fractional values are allowed. Clipping is subject to some limitations which are described below. In particular, Z-coordinate-based clipping parameters do not work correctly. The labels of these parameters are displayed in <span style="color:brown;">brown</span>. </li>
 		</ul>
 		
 		<h2 id="method">Methodology</h2>
 		<h3>Samples</h3>
 		<p>
-			The input texture 
+			The input texture is sampled in software to generate the texels of the textures. These samples are filtered in software using tri-linear interpolation before the transfer function is applied. 
 		</p>
 		<h3>Transfer function:</h3>
+		<p>
+			When the texture is pre-processed (discussed further in the implementation section), the minimum and maximum values are identified. These values are used to scale each sample between 0 and 1. These scaled values (x) are then turned into an RGBA color by 8-bit channel according to the following functions:
+		</p>
+		<ul style="font-family: monospace;">
+			<li>r(x) = 255 * x</li> 
+			<li>g(x) = 0 </li>
+			<li>b(x) = 255 * (1 - x)</li>
+			<li>a(x) = 255 * x</li>
+		</ul>
+			
 		<h3>Slice generation</h3>
 		<p>
-			2D slices are object-aligned and work according to the technique we learned in class. First, a texture is generated for each slice based on the transfer function. 
+			2D slices are object-aligned and work according to the technique we learned in class. First, a texture is generated for each slice based on the transfer function. Since the dimensions of the input data are 80 * 80 * 80, each slice has 80 * 80 texels. Due to a persistent bug in the vertex pipeline, only one set of slices (the XY plane) are visible. This means that at certain rotations, gaps can be seen between slices. 
 		</p>
+		<p>3D slices are supposed to be view-aligned. Unfortunately, due to an issue mentioned below they are heavily distorted, and sometimes the user can see gaps. 3D textures are not natively supported in WebGL, but we have implemented a workaround in our shader, allowing for tri-linear 3D texture interpolation.</p>
 		
-		<h2 id="features">Features</h2>
 		
 		<h2 id="impl">Implementation</h2>
+		<p>
+			This project 
+		</p>
+		
 		Texture processing
 		
 		<h2 id="issues">Known Issues</h2>
