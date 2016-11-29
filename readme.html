@@ -187,6 +187,42 @@
 			WebGL does not support fixed-function clipping planes, so this functionality was implemented in the fragment shader. The original, untransformed vertex coordinates are interpolated and passed through to the fragment shader. If fragments lie on the wrong side of the plane, or outside the box, the fragment is discarded. 
 		</p>
 		
+		<h2 id="code">Code Files</h2>
+		<p>This section lists each file and what functionality it implements.</p>
+		<ul>
+			<li>
+				<b>globals.js:</b> A set of global variables that are modified by the user interface to communicate with the main application. Also contains important object handles that need to be used by all functions, such as the GL context pointer. <b>[66 lines]</b>
+			</li>
+		
+			<li>
+				<b>init.js:</b> Contains code to initialize the web application when the page is loaded. Calls code that generates object-aligned slice mesh so it can be created once and sent to the video card. Also initializes the rendering loop. <b>[198 lines]</b>
+			</li>
+			
+			<li>
+				<b>render.js:</b> Contains the implementation of the render loops, both for 2D and 3D textured slices. Also contains the code to perform modelview and perspective transformations. <b>[197 lines]</b>
+			</li>
+			
+			<li>
+				<b>shaders.js:</b> Contains both the 2D and 3D texture fragment shaders, the unique vertex shader, and code to assist loading shaders and linking shader programs. <b>[168 lines]</b>
+			</li>
+			
+			<li>
+				<b>slices2d.js:</b> Contains code that generates object-aligned 2D texture slices. <b>[85 lines]</b>
+			</li>
+			
+			<li>
+				<b>slices3d.js:</b> Contains code that generates view-aligned 3D texture slices. <b>[122 lines]</b>
+			</li>
+			
+			<li>
+				<b>texture.js:</b> Contains code that loads and generates 2D and 3D textures. Also contains code that directly uses those textures, such as mesh generation. <b>[351 lines]</b>
+			</li>
+			
+			<li>
+				<b>transfer.js:</b> Contains the transfer function. <b>[22 lines]</b>
+			</li>
+		</ul>
+		
 		<h2 id="perf">Performance</h2>
 		<p>
 			Performance of this application is poor on most computers. This is partly a limitation of WebGL, and partly a result of poor optimization on our part. If your computer is unable to run the app, we can provide a demonstration using one of our laptops.  
@@ -217,6 +253,10 @@
 			
 			<li>
 				View aligned slices are heavily distorted. We believe this is also a result of the Z-channel clearing.
+			</li>
+			
+			<li>
+				There appears to be a hardware limit on vertex buffer objects in WebGL. Despite carefully segregating our data bindings, once enough buffers are present, there appear to be changes to other buffers when data is changed. This behavior is very strange, and we haven't been able to reliably reproduce it. This issue further prevents us from having multiple sets of slices for different angles. 
 			</li>
 		</ul>
 		
