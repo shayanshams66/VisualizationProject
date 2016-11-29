@@ -117,7 +117,7 @@ function renderScene() {
 function render3d() {
 	var proj = mat4.create()
 	
-	mat4.ortho( proj, -100, 100, -100, 100, -100, 100 );
+	mat4.ortho( proj, -90, 90, -90, 90, -90, 90 );
 	
 	
 	//Draw slices in correct view order. 
@@ -156,7 +156,7 @@ function render3d() {
 function render2d() {
 	var proj = mat4.create()
 	
-	mat4.ortho( proj, -100, 100, -100, 100, -100, 100 );
+	mat4.ortho( proj, -70, 70, -70, 70, -70, 70 );
 	
 	
 	//Draw slices in correct view order. 
