@@ -64,6 +64,10 @@
 				display: table;
 				margin: auto;
 			}
+			
+			p, li {
+				text-align: justify;
+			}
 		</style>
 	</head>
 	
@@ -80,7 +84,7 @@
 			<li><a href="#perf">Performance</a></li>
 			<li><a href="#future">Future Work</a></li>
 			<li><a href="#issues">Known Issues</a></li>
-			<li><a href="#value">Notable Successes</a></li>
+			<li><a href="#conc">Conclusion</a></li>
 		</ol>
 		
 		<h2 id="intro">Objective</h2>
@@ -114,9 +118,9 @@
 			The user has the following options to customize the display of the volume:
 		</p>
 		<ul>
-			<li><b>View options:</b> either allow the volume to smoothly <b>auto-rotate</b> around the Y axis, or allow the user to <b>manually</b> specify the degrees to rotate around each axis (Euler angles).</li>
+			<li><b>View options:</b> either allow the volume to smoothly <b>auto-rotate</b> around the Y axis, or allow the user to <b>manually</b> specify the degrees to rotate around each axis (Euler angles). Orthographic projection is used for the view, because the volume viewed is a perfect cube. Perspective projection would have made it awkward to accurately see through the object to locate a particular cluster of points.</li>
 			
-			<li><b>Texture mode:</b> allows the user to use <b>2D</b> or <b>3D</b> texture-based visualization. This option is subject to limitations as listed below.</li>
+			<li><b>Texture mode:</b> allows the user to use <b>2D</b> or <b>3D</b> slice-based texture visualization. This option is subject to limitations as listed below.</li>
 			
 			<li><b>Clipping mode:</b> allows the user to select between <b>no clipping</b>, <b>plane-based clipping</b>, and <b>box clipping</b>. For plane clipping, 6 planes are availible. Each axis has two planes, one which bounds the volume from above (the positive plane) and one which bounds from below (the negative plane). For box based clipping, the user can select the x, y, z coordinate of the least-significant vertex of the clipping box, along with the number of layers, rows, and columns to be visible. Fractional values are allowed. Clipping is subject to some limitations which are described below. In particular, Z-coordinate-based clipping parameters do not work correctly. The labels of these parameters are displayed in <span style="color:brown;">brown</span>. </li>
 		</ul>
@@ -141,17 +145,89 @@
 		<p>
 			2D slices are object-aligned and work according to the technique we learned in class. First, a texture is generated for each slice based on the transfer function. Since the dimensions of the input data are 80 * 80 * 80, each slice has 80 * 80 texels. Due to a persistent bug in the vertex pipeline, only one set of slices (the XY plane) are visible. This means that at certain rotations, gaps can be seen between slices. 
 		</p>
-		<p>3D slices are supposed to be view-aligned. Unfortunately, due to an issue mentioned below they are heavily distorted, and sometimes the user can see gaps. 3D textures are not natively supported in WebGL, but we have implemented a workaround in our shader, allowing for tri-linear 3D texture interpolation.</p>
+		
+		<p>
+			3D slices are supposed to be view-aligned. Unfortunately, due to an issue mentioned below they are heavily distorted, and sometimes the user can see gaps. 3D textures are not natively supported in WebGL, but we have implemented a workaround in our shader, allowing for tri-linear 3D texture interpolation.
+		</p>
 		
 		
 		<h2 id="impl">Implementation</h2>
 		<p>
-			This project 
+			This project was implemented using WebGL. Our intention was to make it easy for you to view, and easy for us to collaborate as well (one of our team members uses Linux). This was a major learning experience for all of us because WebGL does not support the fixed-function pipeline, forcing us to implement things like clipping planes in shaders. Furthermore, WebGL has a number of severe limitations that dramatically increased the difficulty, such as a lack of support for 3D textures. 
 		</p>
 		
-		Texture processing
+		<h3>Texture pre-processing</h3>
+		<p>
+			We took your input texture and wrote a simple script in Ruby to turn it into a JSON file. JSON objects can be easily loaded by Javascript interpreters. We also stripped extraneous lines this way. 
+		</p>
+		
+		<h3>Slices</h3>
+		<p>
+			The most important data structure used by the application is the <code>slice-set</code>. <code>slice-sets</code> represent a volume defined by slices, where each slice is a tuple of 4 vertices representing the corners of a quad. Two functions generate slices: one for object-aligned slices and one for view-aligned slices. Object-aligned slices are generated with a simple 
+		</p>
+		
+		<h3>Mesh-generation</h3>
+		<p>
+			The mesh generation function took a slice-set as input and generated a vertex-buffer, index-buffer, and texture (for 2D texture rendering). Each of these OpenGL object handles were grouped into tuples, and stored in an object. Drawing the mesh consisted of binding each group of buffers and rendering each slice. 
+		</p>
+		
+		<h3>3D textures and sampling</h3>
+		<p>
+			WebGL does not natively support 3D textures, so we implemented a work-around, found in a google IO talk with code located <a href="https://github.com/WebGLSamples/WebGLSamples.github.io/blob/master/color-adjust/color-adjust.html">here</a>. Essentially, the approach works as follows:
+		</p>
+		
+		<ol>
+			<li>Construct a 2D texture with dimensions of X*Y by Z. In our case, this texture is 640 by 80.</li>
+			<li>Each row of this texture represents a complete slice of the 3D texture, stored in row-major order.</li>
+			<li>The shader defines a custom sampler function which identifies the two slices that surround a point in Z coordinates. It then performs bilinear interpolation between the colors of those points using the Z value of the texel.</li>
+		</ol>
+		
+		<h3>Clipping Planes</h3>
+		<p>
+			WebGL does not support fixed-function clipping planes, so this functionality was implemented in the fragment shader. The original, untransformed vertex coordinates are interpolated and passed through to the fragment shader. If fragments lie on the wrong side of the plane, or outside the box, the fragment is discarded. 
+		</p>
+		
+		<h2 id="perf">Performance</h2>
+		<p>
+			Performance of this application is poor on most computers. This is partly a limitation of WebGL, and partly a result of poor optimization on our part. If your computer is unable to run the app, we can provide a demonstration using one of our laptops.  
+		</p>
+		<p>
+			Performance of object-aligned slices is improved by using hardware vertex buffers, such that only one transfer from local to video memory is needed. Unfortunately, performance of view-aligned slices does not benefit from this property as they must be re-computed each frame. 
+		</p>
+		<p>
+			Memory usage of 3D textures is extremely high. Unfortunately, a major limitation of WebGL is that there is very little support for compressed textures in major browsers. Furthermore, storing the source data also requires a significant amount of memory. 
+		</p>
 		
 		<h2 id="issues">Known Issues</h2>
+		<p>
+			This project was very difficult for us due to the self-imposed challenge of implementing it in WebGL. Despite devoting a large amount of time to the project, we were unable to solve the following issues:
+		</p>
+		<ul>
+			<li>
+				When meshes are transferred to the video card using glBufferData, the Z-coordinate is randomly cleared to 0. We are using the correct options for both the size, stride, and type of the data attribute. This issue affects clipping planes, as the Z-coordinate is always zero from the perspective of the fragment shader. We coped with this error by translating by a fixed amount before drawing each slice, but this approach causes other problems.
+			</li>
+			
+			<li>
+				Object-aligned slices are only on the XY plane. This is required by the inconsistent Z-clearing glitch. Our strategy of translating the coordinate system before rendering each slice only works on these planes due to their constant Z values. The result of this limitation is that slices have gaps when the view is close to 90 or 270 degrees. 
+			</li>
+			
+			<li>
+				The Z-channel of clipping planes and boxes does not function at all. This is a result of the Z-clearing bug. 
+			</li>
+			
+			<li>
+				View aligned slices are heavily distorted. We believe this is also a result of the Z-channel clearing.
+			</li>
+		</ul>
+		
+		<p>
+			As you can see, the Z-clearing bug causes a number of issues. All three of us have spent dozens of man-hours trying to find the source of this bug, but we are unable. 
+		</p>
+		
+		<h2 id="conc">Conclusion</h2>
+		<p>
+			Despite the issues caused by the Z-clearing bug, we believe that we have demonstrated a basic understanding of volume rendering using 2D and 3D textures. We developed a web application using Javascript and WebGL which allows a volume to be visualized. Lastly, we used the web platform to implement a graphical user interface for manipulating these volumes.
+		</p>
 	</body>
 	
 </html>
