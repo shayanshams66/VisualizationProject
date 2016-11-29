@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			body {
+				border: 0;
+				background-color: #EEE;
+				padding-left: 15%;
+				padding-right: 15%;
+				/*max-width: 600px;*/
+				line-height: 1.6;
+				font-size: 18px;
+				color: #333; 
+				display: table-cell;
+				vertical-align: middle;
+			}
+			
+			button {
+				height: 95%;
+				width: 95%;
+				font-size: 20px;
+			}
+			
+			td { 
+				vertical-align: top;
+				padding-left: 20px;
+				padding-right: 20px;
+			}
+			
+			.names {
+				font-family: serif;
+				letter-spacing: 2px;
+				text-align: center;
+			}
+			
+			.readme {
+				font-family: sans-serif;
+				text-align: center;
+				margin-top: -10px;
+			}
+			
+			h1, h2, h3 {
+				line-height: 1.0;
+				font-family: sans-serif;
+			}
+			
+			h1 { 
+				text-align: center;
+				margin-bottom: 10px;
+			}
+			
+			h3 {
+				color: #444;
+			}
+
+			canvas {
+				width: 600px;
+				height: 400px;
+				display: block;
+				padding-bottom: 20px;
+			}
+			
+			html {
+				display: table;
+				margin: auto;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<h1>Volumetric Texture Visualizer: Readme</h1>
+		<div class="names">Shayan Shams, Grant Williams, Chenguang Zhang</div>
+		<h2>Table of Contents</h2>
+		<ol>
+			<li><a href="#intro">Objective</a></li>
+			<li><a href="#screenshot">Screenshot</a></li>
+			<li><a href="#inter">Interactions</a></li>
+			<li><a href="#method">Methodology</a></li>
+			<li><a href="#impl">Implementation</a></li>
+			<li><a href="#perf">Performance</a></li>
+			<li><a href="#future">Future Work</a></li>
+			<li><a href="#issues">Known Issues</a></li>
+		</ol>
+		
+		<h2 id="intro">Objective</h2>
+		<p>
+			This is the volumetric texture implementation project assigned for the Scientifict Information Visualization. We were tasked to do the following:
+			<ol>
+				<li>Visualize a given scalar volume data set using 2D or 3D texture mapping.</li>
+				<li>Display the data using a color map.</li>
+				<li>Use texture mapping to implement the color map, and filter the textures.</li>
+				<li>Support planar and box clipping.</li>
+				<li>Provide a user interface.</li>
+			</ol>
+		</p>
+		
+		<p>
+			We provided these features as follows:
+			<ol>
+				<li>We implemented both 2D and 3D texture mapping, but both are subject to some limitations</li>
+				<li>We used a color map, with an aesthetically pleasing transfer function and transparency.</li>
+				<li>We generated color maps and uploaded them as textures. We used bilinear filtering, as provided by OpenGL. Additionally, we implemented our own special texture filtering for 3D textures </li>
+				<li>We support both planar and box clipping, subject to one issue listed below.</li>
+				<li>We provide a graphical user interface using HTML forms for convenient feature discovery. </li>
+			</ol>
+		</p>
+		
+		<h2 id="screenshot">Screenshot</h2>
+		<img src="screenshot.png" style="height:400px;width:50%;margin:auto;display:table;"/>
+		
+		<h2 id="inter">Interactions and Features</h2>
+		<p>
+			The user has the following options:
+		</p>
+		<ul>
+			<li>View options: either allow the volume to smoothly <b>auto-rotate</b> around the Y axis, or allow the user to manually specify the degrees to rotate around each axis (Euler angles).</li>
+			
+			<li>Texture mode: allows the user to use 2D or 3D visualization. This is subject to limitations as listed below.</li>
+			
+			<li>Clipping mode: allows the user to select between <b>no clipping</b>, <b>plane-based clipping</b>, and <b>box clipping</b>. For plane clipping, 6 planes are availible. Each axis has two planes, one which bounds the volume from above (the positive plane) and one which bounds from below (the negative plane). For box based clipping, the user can select the x, y, z coordinate of the least-significant vertex of the clipping box, along with the number of layers, rows, and columns to be visible. Fractional values are allowed. Clipping is subject to some limitations which are described below. In particular, Z-coordinate-based clipping parameters do not work correctly. The labels of these parameters are displayed in <span style="color:brown;">brown</span>. </li>
+		</ul>
+		
+		<h2 id="method">Methodology</h2>
+		<h3>Samples</h3>
+		<p>
+			The input texture 
+		</p>
+		<h3>Transfer function:</h3>
+		<h3>Slice generation</h3>
+		<p>
+			2D slices are object-aligned and work according to the technique we learned in class. First, a texture is generated for each slice based on the transfer function. 
+		</p>
+		
+		<h2 id="features">Features</h2>
+		
+		<h2 id="impl">Implementation</h2>
+		Texture processing
+		
+		<h2 id="issues">Known Issues</h2>
+	</body>
+	
+</html>
